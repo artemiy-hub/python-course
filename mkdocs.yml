@@ -27,7 +27,16 @@ theme:
 
 plugins:
   - search
-  - mermaid2
+  - mermaid2:
+      arguments:
+        theme: default
+        themeVariables:
+          primaryColor: "#1976d2"
+          primaryTextColor: "#fff"
+          primaryBorderColor: "#1976d2"
+          lineColor: "#2A2A2A"
+          secondaryColor: "#f8f8f8"
+          tertiaryColor: "#fff"
   - awesome-pages
 
 markdown_extensions:
