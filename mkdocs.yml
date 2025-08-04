@@ -54,30 +54,130 @@ extra:
 nav:
   - Главная: index.md
   - Основы:
-    - 01. Введение: 01_Введение/README.md
-    - 02. Базовые конструкции: 02_Базовые_конструкции/README.md
-    - 03. Структуры данных: 03_Структуры_данных/README.md
-    - 04. Функции: 04_Функции/README.md
-    - 05. Модули и пакеты: 05_Модули_и_пакеты/README.md
+    - 01. Введение: 
+      - Обзор: 01_Введение/README.md
+      - Теория: 01_Введение/01_introduction_theory.md
+      - Диаграммы: 01_Введение/01_introduction_diagrams.md
+      - Примеры: 01_Введение/01_introduction_examples.py
+      - Упражнения: 01_Введение/01_introduction_exercises.py
+    - 02. Базовые конструкции: 
+      - Обзор: 02_Базовые_конструкции/README.md
+      - Теория: 02_Базовые_конструкции/02_basic_constructs_theory.md
+      - Диаграммы: 02_Базовые_конструкции/02_basic_constructs_diagrams.md
+      - Примеры: 02_Базовые_конструкции/02_basic_constructs_examples.py
+      - Упражнения: 02_Базовые_конструкции/02_basic_constructs_exercises.py
+    - 03. Структуры данных: 
+      - Обзор: 03_Структуры_данных/README.md
+      - Теория: 03_Структуры_данных/03_data_structures_theory.md
+      - Диаграммы: 03_Структуры_данных/03_data_structures_diagrams.md
+      - Примеры: 03_Структуры_данных/03_data_structures_examples.py
+      - Упражнения: 03_Структуры_данных/03_data_structures_exercises.py
+    - 04. Функции: 
+      - Обзор: 04_Функции/README.md
+      - Теория: 04_Функции/04_functions_theory.md
+      - Диаграммы: 04_Функции/04_functions_diagrams.md
+      - Примеры: 04_Функции/04_functions_examples.py
+      - Упражнения: 04_Функции/04_functions_exercises.py
+    - 05. Модули и пакеты: 
+      - Обзор: 05_Модули_и_пакеты/README.md
+      - Теория: 05_Модули_и_пакеты/05_modules_packages_theory.md
+      - Диаграммы: 05_Модули_и_пакеты/05_modules_packages_diagrams.md
+      - Примеры: 05_Модули_и_пакеты/05_modules_packages_examples.py
+      - Упражнения: 05_Модули_и_пакеты/05_modules_packages_exercises.py
   - Продвижение:
-    - 06. Работа с файлами: 06_Работа_с_файлами/README.md
-    - 07. Исключения: 07_Исключения/README.md
-    - 08. ООП: 08_ООП/README.md
+    - 06. Работа с файлами: 
+      - Обзор: 06_Работа_с_файлами/README.md
+      - Теория: 06_Работа_с_файлами/06_file_operations_theory.md
+      - Диаграммы: 06_Работа_с_файлами/06_file_operations_diagrams.md
+      - Примеры: 06_Работа_с_файлами/06_file_operations_examples.py
+      - Упражнения: 06_Работа_с_файлами/06_file_operations_exercises.py
+    - 07. Исключения: 
+      - Обзор: 07_Исключения/README.md
+      - Теория: 07_Исключения/07_exceptions_theory.md
+      - Диаграммы: 07_Исключения/07_exceptions_diagrams.md
+      - Примеры: 07_Исключения/07_exceptions_examples.py
+      - Упражнения: 07_Исключения/07_exceptions_exercises.py
+    - 08. ООП: 
+      - Обзор: 08_ООП/README.md
+      - Теория: 08_ООП/08_oop_theory.md
+      - Диаграммы: 08_ООП/08_oop_diagrams.md
+      - Примеры: 08_ООП/08_oop_examples.py
+      - Упражнения: 08_ООП/08_oop_exercises.py
   - Средний уровень:
-    - 11. Python2 vs Python3: 11_Python2_vs_Python3/README.md
-    - 12. Практика и тесты: 12_Практика_и_тесты/README.md
-    - 13. Архитектура: 13_Архитектура_и_CS_фундамент/README.md
+    - 11. Python2 vs Python3: 
+      - Обзор: 11_Python2_vs_Python3/README.md
+      - Теория: 11_Python2_vs_Python3/11_external_libraries_theory.md
+      - Диаграммы: 11_Python2_vs_Python3/11_external_libraries_diagrams.md
+      - Примеры: 11_Python2_vs_Python3/11_external_libraries_examples.py
+      - Упражнения: 11_Python2_vs_Python3/11_external_libraries_exercises.py
+    - 12. Практика и тесты: 
+      - Обзор: 12_Практика_и_тесты/README.md
+      - Теория: 12_Практика_и_тесты/12_typing_theory.md
+      - Диаграммы: 12_Практика_и_тесты/12_typing_diagrams.md
+      - Примеры: 12_Практика_и_тесты/12_typing_examples.py
+      - Упражнения: 12_Практика_и_тесты/12_typing_exercises.py
+    - 13. Архитектура: 
+      - Обзор: 13_Архитектура_и_CS_фундамент/README.md
+      - Теория: 13_Архитектура_и_CS_фундамент/13_architecture_cs_theory.md
+      - Диаграммы: 13_Архитектура_и_CS_фундамент/13_architecture_cs_diagrams.md
+      - Примеры: 13_Архитектура_и_CS_фундамент/13_architecture_cs_examples.py
+      - Упражнения: 13_Архитектура_и_CS_фундамент/13_architecture_cs_exercises.py
   - Продвинутый:
-    - 14. Типизация: 14_Типизация_и_аннотации/README.md
-    - 15. Современный Python: 15_Современный_Python/README.md
-    - 16. Веб-разработка: 16_Веб_разработка/README.md
-    - 17. Базы данных: 17_Базы_данных/README.md
+    - 14. Типизация: 
+      - Обзор: 14_Типизация_и_аннотации/README.md
+      - Теория: 14_Типизация_и_аннотации/14_typing_advanced_theory.md
+      - Диаграммы: 14_Типизация_и_аннотации/14_typing_advanced_diagrams.md
+      - Примеры: 14_Типизация_и_аннотации/14_typing_advanced_examples.py
+      - Упражнения: 14_Типизация_и_аннотации/14_typing_advanced_exercises.py
+    - 15. Современный Python: 
+      - Обзор: 15_Современный_Python/README.md
+      - Теория: 15_Современный_Python/15_modern_python_theory.md
+      - Диаграммы: 15_Современный_Python/15_modern_python_diagrams.md
+      - Примеры: 15_Современный_Python/15_modern_python_examples.py
+    - 16. Веб-разработка: 
+      - Обзор: 16_Веб_разработка/README.md
+      - Теория: 16_Веб_разработка/16_web_development_theory.md
+      - Диаграммы: 16_Веб_разработка/16_web_development_diagrams.md
+    - 17. Базы данных: 
+      - Обзор: 17_Базы_данных/README.md
+      - Теория: 17_Базы_данных/17_databases_theory.md
+      - Диаграммы: 17_Базы_данных/17_databases_diagrams.md
   - Эксперт:
-    - 18. Тестирование: 18_Тестирование/README.md
-    - 19. Развертывание: 19_Пакетирование_и_развертывание/README.md
-    - 20. Анализ данных: 20_Анализ_данных_и_ML/README.md
-    - 21. Безопасность: 21_Безопасность/README.md
-    - 22. Мониторинг: 22_Логирование_и_мониторинг/README.md
-    - 23. Регулярные выражения: 23_Регулярные_выражения/README.md
+    - 18. Тестирование: 
+      - Обзор: 18_Тестирование/README.md
+      - Теория: 18_Тестирование/18_testing_theory.md
+      - Диаграммы: 18_Тестирование/18_testing_diagrams.md
+      - Примеры: 18_Тестирование/18_testing_examples.py
+      - Упражнения: 18_Тестирование/18_testing_exercises.py
+    - 19. Развертывание: 
+      - Обзор: 19_Пакетирование_и_развертывание/README.md
+      - Теория: 19_Пакетирование_и_развертывание/19_packaging_deployment_theory.md
+      - Диаграммы: 19_Пакетирование_и_развертывание/19_packaging_deployment_diagrams.md
+      - Примеры: 19_Пакетирование_и_развертывание/19_packaging_deployment_examples.py
+      - Упражнения: 19_Пакетирование_и_развертывание/19_packaging_deployment_exercises.py
+    - 20. Анализ данных: 
+      - Обзор: 20_Анализ_данных_и_ML/README.md
+      - Теория: 20_Анализ_данных_и_ML/20_data_analysis_ml_theory.md
+      - Диаграммы: 20_Анализ_данных_и_ML/20_data_analysis_ml_diagrams.md
+      - Примеры: 20_Анализ_данных_и_ML/20_data_analysis_ml_examples.py
+      - Упражнения: 20_Анализ_данных_и_ML/20_data_analysis_ml_exercises.py
+    - 21. Безопасность: 
+      - Обзор: 21_Безопасность/README.md
+      - Теория: 21_Безопасность/21_security_theory.md
+      - Диаграммы: 21_Безопасность/21_security_diagrams.md
+      - Примеры: 21_Безопасность/21_security_examples.py
+      - Упражнения: 21_Безопасность/21_security_exercises.py
+    - 22. Мониторинг: 
+      - Обзор: 22_Логирование_и_мониторинг/README.md
+      - Теория: 22_Логирование_и_мониторинг/22_logging_monitoring_theory.md
+      - Диаграммы: 22_Логирование_и_мониторинг/22_logging_monitoring_diagrams.md
+      - Примеры: 22_Логирование_и_мониторинг/22_logging_monitoring_examples.py
+      - Упражнения: 22_Логирование_и_мониторинг/22_logging_monitoring_exercises.py
+    - 23. Регулярные выражения: 
+      - Обзор: 23_Регулярные_выражения/README.md
+      - Теория: 23_Регулярные_выражения/23_regex_theory.md
+      - Диаграммы: 23_Регулярные_выражения/23_regex_diagrams.md
+      - Примеры: 23_Регулярные_выражения/23_regex_examples.py
+      - Упражнения: 23_Регулярные_выражения/23_regex_exercises.py
   - Инструменты:
     - Как использовать: HOW_TO_USE.md 
