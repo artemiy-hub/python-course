@@ -1,10 +1,6 @@
 site_name: Курс Python
 site_description: Полный курс Python от основ до продвинутых техник
 site_author: Python Course
-site_url: https://your-username.github.io/python-course
-
-repo_name: python-course
-repo_url: https://github.com/your-username/python-course
 
 theme:
   name: material
@@ -27,17 +23,7 @@ theme:
 
 plugins:
   - search
-  - mermaid2:
-      arguments:
-        theme: default
-        themeVariables:
-          primaryColor: "#1976d2"
-          primaryTextColor: "#fff"
-          primaryBorderColor: "#1976d2"
-          lineColor: "#2A2A2A"
-          secondaryColor: "#f8f8f8"
-          tertiaryColor: "#fff"
-  - awesome-pages
+  - mermaid2
 
 markdown_extensions:
   - admonition
@@ -61,7 +47,7 @@ markdown_extensions:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/your-username/python-course
+      link: https://github.com
     - icon: fontawesome/brands/python
       link: https://python.org
 
