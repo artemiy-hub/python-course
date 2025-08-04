@@ -17,7 +17,16 @@ theme:
 
 plugins:
   - search
-  - mermaid2
+  - mermaid2:
+      arguments:
+        theme: default
+        flowchart:
+          useMaxWidth: true
+          htmlLabels: true
+        sequence:
+          useMaxWidth: true
+        gantt:
+          useMaxWidth: true
 
 markdown_extensions:
   - admonition
@@ -40,6 +49,7 @@ markdown_extensions:
 
 nav:
   - Главная: index.md
+  - Примеры диаграмм: mermaid_examples.md
   - Основы:
     - 01. Введение: 01_Введение/README.md
     - 02. Базовые конструкции: 02_Базовые_конструкции/README.md
@@ -65,4 +75,4 @@ nav:
     - 20. Анализ данных: 20_Анализ_данных_и_ML/README.md
     - 21. Безопасность: 21_Безопасность/README.md
     - 22. Мониторинг: 22_Логирование_и_мониторинг/README.md
-    - 23. Регулярные выражения: 23_Регулярные_выражения/README.md 
+    - 23. Регулярные выражения: 23_Регулярные_выражения/README.md
