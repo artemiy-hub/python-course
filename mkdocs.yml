@@ -1,0 +1,88 @@
+site_name: Курс Python
+site_description: Полный курс Python от основ до продвинутых техник
+site_author: Python Course
+site_url: https://your-username.github.io/python-course
+
+repo_name: python-course
+repo_url: https://github.com/your-username/python-course
+
+theme:
+  name: material
+  language: ru
+  palette:
+    - media: "(prefers-color-scheme)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Переключить цветовую схему
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Переключить цветовую схему
+
+plugins:
+  - search
+  - mermaid2
+  - awesome-pages
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.arithmatex
+  - pymdownx.tasklist
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/your-username/python-course
+    - icon: fontawesome/brands/python
+      link: https://python.org
+
+nav:
+  - Главная: index.md
+  - Основы:
+    - 01. Введение: 01_Введение/README.md
+    - 02. Базовые конструкции: 02_Базовые_конструкции/README.md
+    - 03. Структуры данных: 03_Структуры_данных/README.md
+    - 04. Функции: 04_Функции/README.md
+    - 05. Модули и пакеты: 05_Модули_и_пакеты/README.md
+  - Продвижение:
+    - 06. Работа с файлами: 06_Работа_с_файлами/README.md
+    - 07. Исключения: 07_Исключения/README.md
+    - 08. ООП: 08_ООП/README.md
+  - Средний уровень:
+    - 11. Python2 vs Python3: 11_Python2_vs_Python3/README.md
+    - 12. Практика и тесты: 12_Практика_и_тесты/README.md
+    - 13. Архитектура: 13_Архитектура_и_CS_фундамент/README.md
+  - Продвинутый:
+    - 14. Типизация: 14_Типизация_и_аннотации/README.md
+    - 15. Современный Python: 15_Современный_Python/README.md
+    - 16. Веб-разработка: 16_Веб_разработка/README.md
+    - 17. Базы данных: 17_Базы_данных/README.md
+  - Эксперт:
+    - 18. Тестирование: 18_Тестирование/README.md
+    - 19. Развертывание: 19_Пакетирование_и_развертывание/README.md
+    - 20. Анализ данных: 20_Анализ_данных_и_ML/README.md
+    - 21. Безопасность: 21_Безопасность/README.md
+    - 22. Мониторинг: 22_Логирование_и_мониторинг/README.md
+    - 23. Регулярные выражения: 23_Регулярные_выражения/README.md
+  - Инструменты:
+    - Как использовать: HOW_TO_USE.md 
