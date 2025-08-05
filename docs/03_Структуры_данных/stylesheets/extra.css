@@ -1,0 +1,290 @@
+/* Improve table formatting */
+.md-typeset table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.md-typeset table th,
+.md-typeset table td {
+    padding: 0.75em;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    text-align: left;
+}
+
+.md-typeset table th {
+    background-color: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    font-weight: bold;
+}
+
+/* Improve code block formatting */
+.md-typeset code {
+    background-color: var(--md-code-bg-color);
+    border-radius: 0.2em;
+    padding: 0.2em 0.4em;
+    font-size: 0.85em;
+}
+
+.md-typeset pre {
+    background-color: var(--md-code-bg-color);
+    border-radius: 0.3em;
+    padding: 1em;
+    overflow-x: auto;
+}
+
+/* Improve mermaid diagram containers */
+.mermaid {
+    text-align: center;
+    margin: 1em 0;
+    padding: 1em;
+    background-color: var(--md-default-bg-color);
+    border-radius: 0.3em;
+    border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Improve admonition boxes */
+.md-typeset .admonition {
+    border-radius: 0.3em;
+    margin: 1em 0;
+}
+
+/* Improve navigation */
+.md-nav__link {
+    transition: color 0.2s ease;
+}
+
+.md-nav__link:hover {
+    color: var(--md-primary-fg-color);
+}
+
+/* Improve content readability */
+.md-content {
+    line-height: 1.6;
+}
+
+.md-content h1,
+.md-content h2,
+.md-content h3,
+.md-content h4,
+.md-content h5,
+.md-content h6 {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-weight: 600;
+}
+
+/* Improve list formatting */
+.md-content ul,
+.md-content ol {
+    padding-left: 2em;
+    margin: 1em 0;
+}
+
+.md-content li {
+    margin: 0.5em 0;
+}
+
+/* Improve blockquote formatting */
+.md-content blockquote {
+    border-left: 4px solid var(--md-primary-fg-color);
+    padding-left: 1em;
+    margin: 1em 0;
+    font-style: italic;
+    color: var(--md-default-fg-color--light);
+}
+
+/* Improve emoji and icon display */
+.md-content .emoji {
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+/* Improve section headers */
+.md-content h1 {
+    border-bottom: 2px solid var(--md-primary-fg-color);
+    padding-bottom: 0.5em;
+}
+
+/* Improve code highlighting */
+.highlight {
+    border-radius: 0.3em;
+    overflow: hidden;
+}
+
+/* Improve table of contents */
+.md-nav__list {
+    font-size: 0.9em;
+}
+
+/* Improve search results */
+.md-search__input {
+    border-radius: 0.3em;
+}
+
+/* Improve mobile responsiveness */
+@media (max-width: 768px) {
+    .md-content {
+        font-size: 0.9em;
+    }
+    
+    .md-typeset table {
+        font-size: 0.8em;
+    }
+    
+    .md-typeset table th,
+    .md-typeset table td {
+        padding: 0.5em;
+    }
+} 
+/* Enhanced Mermaid diagram styling with zoom and fullscreen support */
+.mermaid {
+    text-align: center;
+    margin: 1em 0;
+    padding: 1em;
+    background-color: var(--md-default-bg-color);
+    border-radius: 0.3em;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mermaid:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid.zoomable {
+    cursor: zoom-in;
+}
+
+/* Modal overlay for fullscreen diagrams */
+.mermaid-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.mermaid-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-modal-content {
+    background-color: var(--md-default-bg-color);
+    border-radius: 0.5em;
+    padding: 2em;
+    max-width: 95%;
+    max-height: 95%;
+    overflow: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mermaid-modal-close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    border: none;
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.mermaid-modal-close:hover {
+    background-color: var(--md-accent-fg-color);
+}
+
+.mermaid-modal-zoom-controls {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    display: flex;
+    gap: 0.5em;
+}
+
+.mermaid-zoom-btn {
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    border: none;
+    border-radius: 0.3em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.mermaid-zoom-btn:hover {
+    background-color: var(--md-accent-fg-color);
+}
+
+/* Zoom controls for embedded diagrams */
+.mermaid-zoom-controls-embedded {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    display: flex;
+    gap: 0.3em;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.mermaid:hover .mermaid-zoom-controls-embedded {
+    opacity: 1;
+}
+
+.mermaid-zoom-btn-small {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 0.2em;
+    padding: 0.3em 0.6em;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease;
+}
+
+.mermaid-zoom-btn-small:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .mermaid-modal-content {
+        padding: 1em;
+        margin: 1em;
+    }
+    
+    .mermaid-modal-close {
+        width: 2em;
+        height: 2em;
+        font-size: 1em;
+    }
+    
+    .mermaid-zoom-controls {
+        bottom: 0.5em;
+        right: 0.5em;
+    }
+    
+    .mermaid-zoom-btn {
+        padding: 0.4em 0.8em;
+        font-size: 0.8em;
+    }
+}
