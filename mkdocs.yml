@@ -21,6 +21,13 @@ theme:
         icon: material/toggle-switch-off-outline
         name: Переключить цветовую схему
 
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mermaid_config.js
+
+
 plugins:
   - search
   - mermaid2
@@ -185,3 +192,4 @@ nav:
       - Упражнения: 23_Регулярные_выражения/23_regex_exercises.py
   - Инструменты:
     - Как использовать: HOW_TO_USE.md 
+
