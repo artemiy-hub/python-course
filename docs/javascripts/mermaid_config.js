@@ -93,13 +93,21 @@ function setupMermaidInteractivity(element) {
 }
 
 function createMermaidModal() {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('mermaid-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
     const modal = document.createElement('div');
     modal.className = 'mermaid-modal';
     modal.id = 'mermaid-modal';
     modal.innerHTML = `
         <div class="mermaid-modal-content">
             <button class="mermaid-modal-close" onclick="closeMermaidModal()">×</button>
-            <div id="mermaid-modal-diagram"></div>
+            <div class="mermaid-modal-diagram-container">
+                <div id="mermaid-modal-diagram"></div>
+            </div>
             <div class="mermaid-modal-zoom-controls">
                 <button class="mermaid-zoom-btn" onclick="zoomModalMermaid(1.2)">Увеличить</button>
                 <button class="mermaid-zoom-btn" onclick="zoomModalMermaid(0.8)">Уменьшить</button>
@@ -128,14 +136,20 @@ function openMermaidFullscreen(element) {
     const modal = document.getElementById('mermaid-modal');
     const modalDiagram = document.getElementById('mermaid-modal-diagram');
     
+    // Clear previous content
+    modalDiagram.innerHTML = '';
+    
     // Clone the diagram content
-    modalDiagram.innerHTML = element.innerHTML;
+    const diagramContent = element.cloneNode(true);
     
     // Remove zoom controls from modal version
-    const zoomControls = modalDiagram.querySelector('.mermaid-zoom-controls-embedded');
+    const zoomControls = diagramContent.querySelector('.mermaid-zoom-controls-embedded');
     if (zoomControls) {
         zoomControls.remove();
     }
+    
+    // Add the diagram to modal
+    modalDiagram.appendChild(diagramContent);
     
     // Show modal
     modal.classList.add('show');
@@ -151,6 +165,12 @@ function openMermaidFullscreen(element) {
 function closeMermaidModal() {
     const modal = document.getElementById('mermaid-modal');
     modal.classList.remove('show');
+    
+    // Clear modal content
+    const modalDiagram = document.getElementById('mermaid-modal-diagram');
+    if (modalDiagram) {
+        modalDiagram.innerHTML = '';
+    }
 }
 
 function zoomMermaid(button, factor) {

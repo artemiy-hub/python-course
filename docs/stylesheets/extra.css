@@ -1,3 +1,5 @@
+/* Enhanced styling for the Python course */
+
 /* Improve table formatting */
 .md-typeset table {
     width: 100%;
@@ -33,7 +35,7 @@
     overflow-x: auto;
 }
 
-/* Improve mermaid diagram containers */
+/* Enhanced Mermaid diagram styling with zoom and fullscreen support */
 .mermaid {
     text-align: center;
     margin: 1em 0;
@@ -41,6 +43,147 @@
     background-color: var(--md-default-bg-color);
     border-radius: 0.3em;
     border: 1px solid var(--md-default-fg-color--lightest);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mermaid:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid.zoomable {
+    cursor: zoom-in;
+}
+
+/* Modal overlay for fullscreen diagrams */
+.mermaid-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+.mermaid-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-modal-content {
+    background-color: var(--md-default-bg-color);
+    border-radius: 0.5em;
+    padding: 2em;
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
+    max-height: 800px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.mermaid-modal-diagram-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1em;
+}
+
+.mermaid-modal-diagram-container svg {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+.mermaid-modal-close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    border: none;
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    cursor: pointer;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    z-index: 10001;
+}
+
+.mermaid-modal-close:hover {
+    background-color: var(--md-accent-fg-color);
+}
+
+.mermaid-modal-zoom-controls {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    display: flex;
+    gap: 0.5em;
+    z-index: 10001;
+}
+
+.mermaid-zoom-btn {
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    border: none;
+    border-radius: 0.3em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+}
+
+.mermaid-zoom-btn:hover {
+    background-color: var(--md-accent-fg-color);
+}
+
+/* Zoom controls for embedded diagrams */
+.mermaid-zoom-controls-embedded {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    display: flex;
+    gap: 0.3em;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.mermaid:hover .mermaid-zoom-controls-embedded {
+    opacity: 1;
+}
+
+.mermaid-zoom-btn-small {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 0.2em;
+    padding: 0.3em 0.6em;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease;
+}
+
+.mermaid-zoom-btn-small:hover {
+    background: rgba(0, 0, 0, 0.9);
 }
 
 /* Improve admonition boxes */
@@ -136,140 +279,11 @@
     .md-typeset table td {
         padding: 0.5em;
     }
-} 
-/* Enhanced Mermaid diagram styling with zoom and fullscreen support */
-.mermaid {
-    text-align: center;
-    margin: 1em 0;
-    padding: 1em;
-    background-color: var(--md-default-bg-color);
-    border-radius: 0.3em;
-    border: 1px solid var(--md-default-fg-color--lightest);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.mermaid:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.mermaid.zoomable {
-    cursor: zoom-in;
-}
-
-/* Modal overlay for fullscreen diagrams */
-.mermaid-modal {
-    display: none;
-    position: fixed;
-    z-index: 10000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-}
-
-.mermaid-modal.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-modal-content {
-    background-color: var(--md-default-bg-color);
-    border-radius: 0.5em;
-    padding: 2em;
-    max-width: 95%;
-    max-height: 95%;
-    overflow: auto;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.mermaid-modal-close {
-    position: absolute;
-    top: 1em;
-    right: 1em;
-    background: var(--md-primary-fg-color);
-    color: var(--md-primary-bg-color);
-    border: none;
-    border-radius: 50%;
-    width: 2.5em;
-    height: 2.5em;
-    cursor: pointer;
-    font-size: 1.2em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-}
-
-.mermaid-modal-close:hover {
-    background-color: var(--md-accent-fg-color);
-}
-
-.mermaid-modal-zoom-controls {
-    position: absolute;
-    bottom: 1em;
-    right: 1em;
-    display: flex;
-    gap: 0.5em;
-}
-
-.mermaid-zoom-btn {
-    background: var(--md-primary-fg-color);
-    color: var(--md-primary-bg-color);
-    border: none;
-    border-radius: 0.3em;
-    padding: 0.5em 1em;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
-}
-
-.mermaid-zoom-btn:hover {
-    background-color: var(--md-accent-fg-color);
-}
-
-/* Zoom controls for embedded diagrams */
-.mermaid-zoom-controls-embedded {
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    display: flex;
-    gap: 0.3em;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.mermaid:hover .mermaid-zoom-controls-embedded {
-    opacity: 1;
-}
-
-.mermaid-zoom-btn-small {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 0.2em;
-    padding: 0.3em 0.6em;
-    cursor: pointer;
-    font-size: 0.8em;
-    transition: background-color 0.2s ease;
-}
-
-.mermaid-zoom-btn-small:hover {
-    background: rgba(0, 0, 0, 0.9);
-}
-
-/* Responsive design for mobile */
-@media (max-width: 768px) {
+    
     .mermaid-modal-content {
+        width: 95vw;
+        height: 95vh;
         padding: 1em;
-        margin: 1em;
     }
     
     .mermaid-modal-close {
