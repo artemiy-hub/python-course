@@ -1,76 +1,140 @@
 // Enhanced Mermaid configuration with advanced controls like marmaid.html
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for Mermaid to be loaded
-    if (typeof mermaid !== 'undefined') {
-        initializeMermaid();
-    } else {
-        // Load Mermaid if not already loaded
-        var script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js';
-        script.onload = initializeMermaid;
-        document.head.appendChild(script);
-    }
-});
+let mermaidLoaded = false;
+let mermaidInitialized = false;
 
+// Функция для проверки загрузки Mermaid
+function checkMermaidLoaded() {
+    return typeof mermaid !== 'undefined' && mermaid !== null;
+}
+
+// Функция для ожидания загрузки Mermaid
+function waitForMermaid(callback, maxAttempts = 50) {
+    let attempts = 0;
+    
+    function check() {
+        attempts++;
+        if (checkMermaidLoaded()) {
+            callback();
+        } else if (attempts < maxAttempts) {
+            setTimeout(check, 100);
+        } else {
+            console.error('Mermaid failed to load after', maxAttempts, 'attempts');
+        }
+    }
+    
+    check();
+}
+
+// Функция загрузки Mermaid
+function loadMermaid() {
+    return new Promise((resolve, reject) => {
+        if (checkMermaidLoaded()) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js';
+        script.onload = () => {
+            mermaidLoaded = true;
+            resolve();
+        };
+        script.onerror = () => {
+            reject(new Error('Failed to load Mermaid'));
+        };
+        document.head.appendChild(script);
+    });
+}
+
+// Инициализация Mermaid
 function initializeMermaid() {
-    mermaid.initialize({
-        startOnLoad: true,
-        theme: 'default',
-        flowchart: {
-            useMaxWidth: true,
-            htmlLabels: true,
-            curve: 'basis'
-        },
-        sequence: {
-            useMaxWidth: true,
-            diagramMarginX: 50,
-            diagramMarginY: 10
-        },
-        gantt: {
-            useMaxWidth: true
-        },
-        journey: {
-            useMaxWidth: true
-        },
-        gitGraph: {
-            useMaxWidth: true
-        },
-        pie: {
-            useMaxWidth: true
-        },
-        quadrantChart: {
-            useMaxWidth: true
-        },
-        timeline: {
-            useMaxWidth: true
-        },
-        stateDiagram: {
-            useMaxWidth: true
-        },
-        classDiagram: {
-            useMaxWidth: true
-        },
-        erDiagram: {
-            useMaxWidth: true
-        },
-        themeVariables: {
-            darkMode: document.documentElement.getAttribute('data-md-color-scheme') === 'slate'
-        }
-    });
+    if (mermaidInitialized) return;
     
-    // Process all mermaid diagrams
+    try {
+        mermaid.initialize({
+            startOnLoad: false, // Отключаем автозагрузку
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                diagramMarginX: 50,
+                diagramMarginY: 10
+            },
+            gantt: {
+                useMaxWidth: true
+            },
+            journey: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            },
+            pie: {
+                useMaxWidth: true
+            },
+            quadrantChart: {
+                useMaxWidth: true
+            },
+            timeline: {
+                useMaxWidth: true
+            },
+            stateDiagram: {
+                useMaxWidth: true
+            },
+            classDiagram: {
+                useMaxWidth: true
+            },
+            erDiagram: {
+                useMaxWidth: true
+            },
+            themeVariables: {
+                darkMode: document.documentElement.getAttribute('data-md-color-scheme') === 'slate'
+            }
+        });
+        
+        mermaidInitialized = true;
+        console.log('Mermaid initialized successfully');
+        
+        // Process all mermaid diagrams
+        processMermaidDiagrams();
+        
+        // Create modal overlay
+        createMermaidModal();
+        
+    } catch (error) {
+        console.error('Error initializing Mermaid:', error);
+    }
+}
+
+// Обработка всех диаграмм Mermaid
+function processMermaidDiagrams() {
     var mermaidDivs = document.querySelectorAll('.mermaid');
-    mermaidDivs.forEach(function(element) {
+    console.log('Found', mermaidDivs.length, 'mermaid diagrams');
+    
+    mermaidDivs.forEach(function(element, index) {
         try {
+            // Проверяем, не был ли уже обработан элемент
+            if (element.hasAttribute('data-mermaid-processed')) {
+                return;
+            }
+            
+            // Рендерим диаграмму
             mermaid.init(undefined, element);
+            
+            // Настраиваем интерактивность
             setupMermaidInteractivity(element);
+            
+            // Отмечаем как обработанный
+            element.setAttribute('data-mermaid-processed', 'true');
+            
         } catch (error) {
-            console.error('Error rendering mermaid diagram:', error);
+            console.error('Error rendering mermaid diagram', index, ':', error);
         }
     });
-    
-    // Create modal overlay
-    createMermaidModal();
 }
 
 function setupMermaidInteractivity(element) {
@@ -146,8 +210,18 @@ let currentX = 0;
 let currentY = 0;
 
 function openMermaidFullscreen(element) {
+    if (!checkMermaidLoaded()) {
+        console.error('Mermaid not loaded');
+        return;
+    }
+    
     const modal = document.getElementById('mermaid-modal');
     const modalDiagram = document.getElementById('mermaid-modal-diagram');
+    
+    if (!modal || !modalDiagram) {
+        console.error('Modal elements not found');
+        return;
+    }
     
     // Clear previous content
     modalDiagram.innerHTML = '';
@@ -167,23 +241,30 @@ function openMermaidFullscreen(element) {
     // Show modal
     modal.classList.add('show');
     
-    // Re-render mermaid in modal
+    // Re-render mermaid in modal with error handling
     try {
-        mermaid.init(undefined, modalDiagram);
-        resetView(); // Reset view when opening
+        mermaid.init(undefined, modalDiagram).then(() => {
+            resetView(); // Reset view when opening
+        }).catch(error => {
+            console.error('Error rendering mermaid diagram in modal:', error);
+            modalDiagram.innerHTML = `<div style="color: red; padding: 20px;">Ошибка рендеринга: ${error.message}</div>`;
+        });
     } catch (error) {
-        console.error('Error rendering mermaid diagram in modal:', error);
+        console.error('Error initializing mermaid in modal:', error);
+        modalDiagram.innerHTML = `<div style="color: red; padding: 20px;">Ошибка: ${error.message}</div>`;
     }
 }
 
 function closeMermaidModal() {
     const modal = document.getElementById('mermaid-modal');
-    modal.classList.remove('show');
-    
-    // Clear modal content
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    if (modalDiagram) {
-        modalDiagram.innerHTML = '';
+    if (modal) {
+        modal.classList.remove('show');
+        
+        // Clear modal content
+        const modalDiagram = document.getElementById('mermaid-modal-diagram');
+        if (modalDiagram) {
+            modalDiagram.innerHTML = '';
+        }
     }
 }
 
@@ -276,3 +357,62 @@ function toggleMermaidTheme() {
         }
     }
 }
+
+// Основная инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, checking for Mermaid...');
+    
+    // Проверяем, загружен ли уже Mermaid
+    if (checkMermaidLoaded()) {
+        console.log('Mermaid already loaded');
+        initializeMermaid();
+    } else {
+        console.log('Loading Mermaid...');
+        loadMermaid().then(() => {
+            console.log('Mermaid loaded successfully');
+            initializeMermaid();
+        }).catch(error => {
+            console.error('Failed to load Mermaid:', error);
+        });
+    }
+});
+
+// Дополнительная проверка для случаев, когда Mermaid загружается после DOM
+window.addEventListener('load', function() {
+    if (!mermaidInitialized && checkMermaidLoaded()) {
+        console.log('Mermaid loaded after window load');
+        initializeMermaid();
+    }
+});
+
+// Обработка динамически добавленных диаграмм
+function observeMermaidDiagrams() {
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    const mermaidDivs = node.querySelectorAll ? node.querySelectorAll('.mermaid') : [];
+                    mermaidDivs.forEach(function(element) {
+                        if (!element.hasAttribute('data-mermaid-processed')) {
+                            try {
+                                mermaid.init(undefined, element);
+                                setupMermaidInteractivity(element);
+                                element.setAttribute('data-mermaid-processed', 'true');
+                            } catch (error) {
+                                console.error('Error processing new mermaid diagram:', error);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// Запускаем наблюдение после инициализации
+setTimeout(observeMermaidDiagrams, 1000);
