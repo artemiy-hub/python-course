@@ -487,12 +487,30 @@ function openMermaidFullscreen(element) {
         svgContainer.className = 'mermaid';
         svgContainer.appendChild(clonedSvg);
         
-        // Сбрасываем все трансформации
+        // Сбрасываем все трансформации и устанавливаем правильные размеры
         clonedSvg.style.transform = 'none';
         clonedSvg.style.maxWidth = '100%';
         clonedSvg.style.maxHeight = '100%';
         clonedSvg.style.width = 'auto';
         clonedSvg.style.height = 'auto';
+        
+        // Автоматическое масштабирование для очень широких диаграмм
+        const viewBox = clonedSvg.getAttribute('viewBox');
+        if (viewBox) {
+            const parts = viewBox.split(' ');
+            const width = parseFloat(parts[2]);
+            const height = parseFloat(parts[3]);
+            
+            if (width > 2000) {
+                const scale = Math.min(0.3, 1200 / width);
+                clonedSvg.style.transform = `scale(${scale})`;
+                clonedSvg.style.transformOrigin = 'center center';
+            } else if (width > 1500) {
+                const scale = Math.min(0.5, 1000 / width);
+                clonedSvg.style.transform = `scale(${scale})`;
+                clonedSvg.style.transformOrigin = 'center center';
+            }
+        }
         
         modalDiagram.appendChild(svgContainer);
         modal.classList.add('show');
@@ -533,6 +551,24 @@ function openMermaidFullscreen(element) {
                 newSvg.style.maxHeight = '100%';
                 newSvg.style.width = 'auto';
                 newSvg.style.height = 'auto';
+                
+                // Автоматическое масштабирование для очень широких диаграмм
+                const viewBox = newSvg.getAttribute('viewBox');
+                if (viewBox) {
+                    const parts = viewBox.split(' ');
+                    const width = parseFloat(parts[2]);
+                    const height = parseFloat(parts[3]);
+                    
+                    if (width > 2000) {
+                        const scale = Math.min(0.3, 1200 / width);
+                        newSvg.style.transform = `scale(${scale})`;
+                        newSvg.style.transformOrigin = 'center center';
+                    } else if (width > 1500) {
+                        const scale = Math.min(0.5, 1000 / width);
+                        newSvg.style.transform = `scale(${scale})`;
+                        newSvg.style.transformOrigin = 'center center';
+                    }
+                }
             }
         }).catch(error => {
             console.error('Error rendering mermaid diagram in modal:', error);
@@ -543,6 +579,7 @@ function openMermaidFullscreen(element) {
         modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка: ${error.message}</div>`;
     }
 }
+
 
 // Основная инициализация
 document.addEventListener('DOMContentLoaded', function() {
