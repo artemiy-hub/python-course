@@ -206,7 +206,8 @@ function processMermaidDiagrams() {
             const hasSvg = element.querySelector('svg');
             
             if (hasSvg) {
-                // Элемент уже содержит SVG, просто добавляем интерактивность
+                // Элемент уже содержит SVG, сохраняем исходный код и добавляем интерактивность
+                saveSourceCodeForElement(element);
                 setupMermaidInteractivity(element);
                 element.setAttribute('data-mermaid-processed', 'true');
                 console.log('Diagram', index, 'already rendered, adding interactivity');
@@ -224,6 +225,9 @@ function processMermaidDiagrams() {
             }
             
             console.log('Processing diagram', index, ':', sourceCode.substring(0, 100) + '...');
+            
+            // Сохраняем исходный код
+            element.setAttribute('data-mermaid-source', sourceCode);
             
             // Очищаем элемент и добавляем исходный код
             element.innerHTML = '';
@@ -245,6 +249,52 @@ function processMermaidDiagrams() {
             element.setAttribute('data-mermaid-processed', 'true');
         }
     });
+}
+
+// Функция для сохранения исходного кода для уже обработанных элементов
+function saveSourceCodeForElement(element) {
+    // Ищем исходный код в ближайших элементах
+    const parent = element.parentElement;
+    if (parent) {
+        // Ищем в предыдущих элементах
+        let prevElement = element.previousElementSibling;
+        while (prevElement) {
+            if (prevElement.tagName === 'PRE' && prevElement.querySelector('code.language-mermaid')) {
+                const sourceCode = prevElement.textContent.trim();
+                if (isValidMermaidCode(sourceCode)) {
+                    element.setAttribute('data-mermaid-source', sourceCode);
+                    return;
+                }
+            }
+            prevElement = prevElement.previousElementSibling;
+        }
+        
+        // Ищем в следующих элементах
+        let nextElement = element.nextElementSibling;
+        while (nextElement) {
+            if (nextElement.tagName === 'PRE' && nextElement.querySelector('code.language-mermaid')) {
+                const sourceCode = nextElement.textContent.trim();
+                if (isValidMermaidCode(sourceCode)) {
+                    element.setAttribute('data-mermaid-source', sourceCode);
+                    return;
+                }
+            }
+            nextElement = nextElement.nextElementSibling;
+        }
+        
+        // Ищем в комментариях
+        const comments = Array.from(parent.childNodes).filter(node => 
+            node.nodeType === Node.COMMENT_NODE
+        );
+        
+        for (const comment of comments) {
+            const commentText = comment.textContent.trim();
+            if (isValidMermaidCode(commentText)) {
+                element.setAttribute('data-mermaid-source', commentText);
+                return;
+            }
+        }
+    }
 }
 
 function setupMermaidInteractivity(element) {
@@ -336,19 +386,8 @@ function openMermaidFullscreen(element) {
     // Clear previous content
     modalDiagram.innerHTML = '';
     
-    // Проверяем, содержит ли элемент уже SVG
-    const svg = element.querySelector('svg');
-    if (svg) {
-        // Клонируем SVG для модального окна
-        const clonedSvg = svg.cloneNode(true);
-        modalDiagram.appendChild(clonedSvg);
-        modal.classList.add('show');
-        resetView();
-        return;
-    }
-    
     // Получаем исходный код диаграммы
-    const sourceCode = getMermaidSourceCode(element);
+    const sourceCode = element.getAttribute('data-mermaid-source');
     
     if (!sourceCode) {
         modalDiagram.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
@@ -510,11 +549,13 @@ function observeMermaidDiagrams() {
                             try {
                                 const hasSvg = element.querySelector('svg');
                                 if (hasSvg) {
+                                    saveSourceCodeForElement(element);
                                     setupMermaidInteractivity(element);
                                     element.setAttribute('data-mermaid-processed', 'true');
                                 } else {
                                     const sourceCode = getMermaidSourceCode(element);
                                     if (sourceCode) {
+                                        element.setAttribute('data-mermaid-source', sourceCode);
                                         element.innerHTML = '';
                                         element.textContent = sourceCode;
                                         mermaid.init(undefined, element);
