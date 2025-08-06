@@ -1,65 +1,20 @@
 // Enhanced Mermaid configuration with advanced controls like marmaid.html
-let mermaidLoaded = false;
 let mermaidInitialized = false;
 let currentScale = 1;
 let currentPanX = 0;
 let currentPanY = 0;
 
-// Функция для проверки загрузки Mermaid
-function checkMermaidLoaded() {
-    return typeof mermaid !== 'undefined' && mermaid !== null;
-}
-
-// Функция для ожидания загрузки Mermaid
-function waitForMermaid(callback, maxAttempts = 50) {
-    let attempts = 0;
-    
-    function check() {
-        attempts++;
-        if (checkMermaidLoaded()) {
-            callback();
-        } else if (attempts < maxAttempts) {
-            setTimeout(check, 100);
-        } else {
-            console.error('Mermaid failed to load');
-        }
-    }
-    
-    check();
-}
-
-// Функция для инициализации Mermaid
-function initializeMermaid() {
+// Функция для инициализации после загрузки DOM
+function initializeMermaidControls() {
     if (mermaidInitialized) return;
     
-    try {
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: 'default',
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'basis'
-            },
-            themeVariables: {
-                primaryColor: '#3498db',
-                primaryTextColor: '#333',
-                primaryBorderColor: '#2980b9',
-                lineColor: '#333',
-                secondaryColor: '#f39c12',
-                tertiaryColor: '#9b59b6'
-            }
-        });
-        
-        mermaidInitialized = true;
-        console.log('Mermaid initialized successfully');
-        
-        // Обработка диаграмм после инициализации
-        processMermaidDiagrams();
-        
-    } catch (error) {
-        console.error('Error initializing Mermaid:', error);
-    }
+    console.log('Initializing Mermaid controls...');
+    
+    // Обработка диаграмм
+    processMermaidDiagrams();
+    
+    mermaidInitialized = true;
+    console.log('Mermaid controls initialized successfully');
 }
 
 // Функция для обработки диаграмм
@@ -289,17 +244,50 @@ function handleKeyDown(e) {
 
 // Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, checking for Mermaid...');
-    waitForMermaid(function() {
-        console.log('Loading Mermaid...');
-        mermaid.load().then(() => {
-            console.log('Mermaid loaded successfully');
-            initializeMermaid();
-        }).catch(error => {
-            console.error('Error loading Mermaid:', error);
+    console.log('DOM loaded, initializing Mermaid controls...');
+    
+    // Ждем немного, чтобы MkDocs обработал диаграммы
+    setTimeout(() => {
+        initializeMermaidControls();
+    }, 1000);
+});
+
+// Дополнительная инициализация при изменении содержимого страницы
+let observer = null;
+
+function setupObserver() {
+    if (observer) {
+        observer.disconnect();
+    }
+    
+    observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                const diagrams = document.querySelectorAll('.mermaid:not([data-controls-added])');
+                if (diagrams.length > 0) {
+                    diagrams.forEach(diagram => {
+                        diagram.setAttribute('data-controls-added', 'true');
+                        addFullscreenButton(diagram);
+                        diagram.addEventListener('click', function(e) {
+                            if (e.target.closest('.mermaid-fullscreen-btn')) return;
+                            openMermaidFullscreen(this);
+                        });
+                    });
+                }
+            }
         });
     });
-});
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// Запускаем observer после инициализации
+setTimeout(() => {
+    setupObserver();
+}, 1500);
 
 // Глобальные функции для кнопок
 window.closeMermaidModal = closeMermaidModal;
