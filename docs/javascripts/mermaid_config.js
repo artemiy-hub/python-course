@@ -1,4 +1,4 @@
-// Enhanced Mermaid configuration with zoom and fullscreen support
+// Enhanced Mermaid configuration with advanced controls like marmaid.html
 document.addEventListener('DOMContentLoaded', function() {
     // Wait for Mermaid to be loaded
     if (typeof mermaid !== 'undefined') {
@@ -52,6 +52,9 @@ function initializeMermaid() {
         },
         erDiagram: {
             useMaxWidth: true
+        },
+        themeVariables: {
+            darkMode: document.documentElement.getAttribute('data-md-color-scheme') === 'slate'
         }
     });
     
@@ -105,13 +108,18 @@ function createMermaidModal() {
     modal.innerHTML = `
         <div class="mermaid-modal-content">
             <button class="mermaid-modal-close" onclick="closeMermaidModal()">×</button>
+            <button class="mermaid-theme-toggle" onclick="toggleMermaidTheme()">🌙</button>
             <div class="mermaid-modal-diagram-container">
                 <div id="mermaid-modal-diagram"></div>
             </div>
-            <div class="mermaid-modal-zoom-controls">
-                <button class="mermaid-zoom-btn" onclick="zoomModalMermaid(1.2)">Увеличить</button>
-                <button class="mermaid-zoom-btn" onclick="zoomModalMermaid(0.8)">Уменьшить</button>
-                <button class="mermaid-zoom-btn" onclick="resetModalMermaidZoom()">Сброс</button>
+            <div class="mermaid-controls">
+                <button class="up" onclick="panUp()">↑</button>
+                <button class="reset" onclick="resetView()">⟲</button>
+                <button class="down" onclick="panDown()">↓</button>
+                <button class="left" onclick="panLeft()">←</button>
+                <button class="zoom-in" onclick="zoomIn()">+</button>
+                <button class="zoom-out" onclick="zoomOut()">−</button>
+                <button class="right" onclick="panRight()">→</button>
             </div>
         </div>
     `;
@@ -131,6 +139,11 @@ function createMermaidModal() {
         }
     });
 }
+
+// Global variables for modal controls
+let currentScale = 1;
+let currentX = 0;
+let currentY = 0;
 
 function openMermaidFullscreen(element) {
     const modal = document.getElementById('mermaid-modal');
@@ -157,6 +170,7 @@ function openMermaidFullscreen(element) {
     // Re-render mermaid in modal
     try {
         mermaid.init(undefined, modalDiagram);
+        resetView(); // Reset view when opening
     } catch (error) {
         console.error('Error rendering mermaid diagram in modal:', error);
     }
@@ -173,6 +187,54 @@ function closeMermaidModal() {
     }
 }
 
+// Advanced control functions (like in marmaid.html)
+function zoomIn() {
+    currentScale *= 1.2;
+    updateTransform();
+}
+
+function zoomOut() {
+    currentScale /= 1.2;
+    updateTransform();
+}
+
+function panUp() {
+    currentY += 50;
+    updateTransform();
+}
+
+function panDown() {
+    currentY -= 50;
+    updateTransform();
+}
+
+function panLeft() {
+    currentX += 50;
+    updateTransform();
+}
+
+function panRight() {
+    currentX -= 50;
+    updateTransform();
+}
+
+function resetView() {
+    currentScale = 1;
+    currentX = 0;
+    currentY = 0;
+    updateTransform();
+}
+
+function updateTransform() {
+    const modalDiagram = document.getElementById('mermaid-modal-diagram');
+    if (modalDiagram) {
+        const svg = modalDiagram.querySelector('svg');
+        if (svg) {
+            svg.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        }
+    }
+}
+
 function zoomMermaid(button, factor) {
     const mermaidDiv = button.closest('.mermaid');
     const svg = mermaidDiv.querySelector('svg');
@@ -185,22 +247,32 @@ function zoomMermaid(button, factor) {
     }
 }
 
-function zoomModalMermaid(factor) {
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    const svg = modalDiagram.querySelector('svg');
-    if (svg) {
-        const currentScale = svg.style.transform ? 
-            parseFloat(svg.style.transform.match(/scale\(([^)]+)\)/)?.[1] || 1) : 1;
-        const newScale = Math.max(0.5, Math.min(3, currentScale * factor));
-        svg.style.transform = `scale(${newScale})`;
-        svg.style.transformOrigin = 'center center';
+function toggleMermaidTheme() {
+    const modal = document.getElementById('mermaid-modal');
+    const themeButton = modal.querySelector('.mermaid-theme-toggle');
+    
+    // Toggle theme
+    const isDark = modal.classList.contains('dark-theme');
+    if (isDark) {
+        modal.classList.remove('dark-theme');
+        themeButton.textContent = '🌙';
+    } else {
+        modal.classList.add('dark-theme');
+        themeButton.textContent = '☀️';
     }
-}
-
-function resetModalMermaidZoom() {
+    
+    // Re-render with new theme
     const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    const svg = modalDiagram.querySelector('svg');
-    if (svg) {
-        svg.style.transform = 'scale(1)';
+    if (modalDiagram) {
+        const svg = modalDiagram.querySelector('svg');
+        if (svg) {
+            // Re-render the diagram with new theme
+            const diagramCode = svg.getAttribute('data-diagram-code');
+            if (diagramCode) {
+                mermaid.render('temp-diagram', diagramCode).then(({ svg: newSvg }) => {
+                    svg.outerHTML = newSvg;
+                });
+            }
+        }
     }
 }
