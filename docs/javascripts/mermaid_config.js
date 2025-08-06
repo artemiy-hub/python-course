@@ -122,6 +122,10 @@ function processMermaidDiagrams() {
                 return;
             }
             
+            // Получаем текст диаграммы
+            const diagramText = element.textContent || element.innerText;
+            console.log('Processing diagram', index, ':', diagramText.substring(0, 100) + '...');
+            
             // Рендерим диаграмму
             mermaid.init(undefined, element);
             
@@ -133,6 +137,8 @@ function processMermaidDiagrams() {
             
         } catch (error) {
             console.error('Error rendering mermaid diagram', index, ':', error);
+            // Показываем ошибку в элементе
+            element.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
         }
     });
 }
@@ -145,9 +151,9 @@ function setupMermaidInteractivity(element) {
     const zoomControls = document.createElement('div');
     zoomControls.className = 'mermaid-zoom-controls-embedded';
     zoomControls.innerHTML = `
-        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 1.2)">+</button>
-        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 0.8)">-</button>
-        <button class="mermaid-zoom-btn-small" onclick="openMermaidFullscreen(this)">⛶</button>
+        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 1.2)" title="Увеличить">+</button>
+        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 0.8)" title="Уменьшить">-</button>
+        <button class="mermaid-zoom-btn-small" onclick="openMermaidFullscreen(this)" title="Полноэкранный режим">⛶</button>
     `;
     element.appendChild(zoomControls);
     
@@ -171,19 +177,19 @@ function createMermaidModal() {
     modal.id = 'mermaid-modal';
     modal.innerHTML = `
         <div class="mermaid-modal-content">
-            <button class="mermaid-modal-close" onclick="closeMermaidModal()">×</button>
-            <button class="mermaid-theme-toggle" onclick="toggleMermaidTheme()">🌙</button>
+            <button class="mermaid-modal-close" onclick="closeMermaidModal()" title="Закрыть">×</button>
+            <button class="mermaid-theme-toggle" onclick="toggleMermaidTheme()" title="Переключить тему">🌙</button>
             <div class="mermaid-modal-diagram-container">
                 <div id="mermaid-modal-diagram"></div>
             </div>
             <div class="mermaid-controls">
-                <button class="up" onclick="panUp()">↑</button>
-                <button class="reset" onclick="resetView()">⟲</button>
-                <button class="down" onclick="panDown()">↓</button>
-                <button class="left" onclick="panLeft()">←</button>
-                <button class="zoom-in" onclick="zoomIn()">+</button>
-                <button class="zoom-out" onclick="zoomOut()">−</button>
-                <button class="right" onclick="panRight()">→</button>
+                <button class="up" onclick="panUp()" title="Вверх">↑</button>
+                <button class="reset" onclick="resetView()" title="Сброс">⟲</button>
+                <button class="down" onclick="panDown()" title="Вниз">↓</button>
+                <button class="left" onclick="panLeft()" title="Влево">←</button>
+                <button class="zoom-in" onclick="zoomIn()" title="Увеличить">+</button>
+                <button class="zoom-out" onclick="zoomOut()" title="Уменьшить">−</button>
+                <button class="right" onclick="panRight()" title="Вправо">→</button>
             </div>
         </div>
     `;
@@ -226,32 +232,31 @@ function openMermaidFullscreen(element) {
     // Clear previous content
     modalDiagram.innerHTML = '';
     
-    // Clone the diagram content
-    const diagramContent = element.cloneNode(true);
+    // Get the original diagram text
+    const originalText = element.textContent || element.innerText;
     
-    // Remove zoom controls from modal version
-    const zoomControls = diagramContent.querySelector('.mermaid-zoom-controls-embedded');
-    if (zoomControls) {
-        zoomControls.remove();
-    }
+    // Create a new mermaid div for the modal
+    const newMermaidDiv = document.createElement('div');
+    newMermaidDiv.className = 'mermaid';
+    newMermaidDiv.textContent = originalText;
     
     // Add the diagram to modal
-    modalDiagram.appendChild(diagramContent);
+    modalDiagram.appendChild(newMermaidDiv);
     
     // Show modal
     modal.classList.add('show');
     
     // Re-render mermaid in modal with error handling
     try {
-        mermaid.init(undefined, modalDiagram).then(() => {
+        mermaid.init(undefined, newMermaidDiv).then(() => {
             resetView(); // Reset view when opening
         }).catch(error => {
             console.error('Error rendering mermaid diagram in modal:', error);
-            modalDiagram.innerHTML = `<div style="color: red; padding: 20px;">Ошибка рендеринга: ${error.message}</div>`;
+            modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
         });
     } catch (error) {
         console.error('Error initializing mermaid in modal:', error);
-        modalDiagram.innerHTML = `<div style="color: red; padding: 20px;">Ошибка: ${error.message}</div>`;
+        modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка: ${error.message}</div>`;
     }
 }
 
@@ -337,24 +342,11 @@ function toggleMermaidTheme() {
     if (isDark) {
         modal.classList.remove('dark-theme');
         themeButton.textContent = '🌙';
+        themeButton.title = 'Переключить на темную тему';
     } else {
         modal.classList.add('dark-theme');
         themeButton.textContent = '☀️';
-    }
-    
-    // Re-render with new theme
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    if (modalDiagram) {
-        const svg = modalDiagram.querySelector('svg');
-        if (svg) {
-            // Re-render the diagram with new theme
-            const diagramCode = svg.getAttribute('data-diagram-code');
-            if (diagramCode) {
-                mermaid.render('temp-diagram', diagramCode).then(({ svg: newSvg }) => {
-                    svg.outerHTML = newSvg;
-                });
-            }
-        }
+        themeButton.title = 'Переключить на светлую тему';
     }
 }
 
