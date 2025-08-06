@@ -7,22 +7,66 @@ function checkMermaidLoaded() {
     return typeof mermaid !== 'undefined' && mermaid !== null;
 }
 
-// Функция для ожидания загрузки Mermaid
-function waitForMermaid(callback, maxAttempts = 50) {
-    let attempts = 0;
+// Функция для проверки, является ли содержимое кодом диаграммы
+function isValidMermaidCode(text) {
+    if (!text || typeof text !== 'string') return false;
     
-    function check() {
-        attempts++;
-        if (checkMermaidLoaded()) {
-            callback();
-        } else if (attempts < maxAttempts) {
-            setTimeout(check, 100);
-        } else {
-            console.error('Mermaid failed to load after', maxAttempts, 'attempts');
+    // Убираем лишние пробелы
+    const trimmedText = text.trim();
+    if (!trimmedText) return false;
+    
+    // Проверяем, не является ли это CSS кодом
+    if (trimmedText.includes('font-family:') || 
+        trimmedText.includes('fill:') || 
+        trimmedText.includes('stroke:') ||
+        trimmedText.includes('#mermaid-')) {
+        return false;
+    }
+    
+    // Проверяем наличие ключевых слов Mermaid
+    const mermaidKeywords = [
+        'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 
+        'stateDiagram', 'erDiagram', 'journey', 'gantt', 'pie', 
+        'gitgraph', 'quadrantChart', 'timeline', 'zenuml', 'sankey'
+    ];
+    
+    const hasMermaidKeyword = mermaidKeywords.some(keyword => 
+        trimmedText.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // Проверяем наличие стрелок или связей
+    const hasConnections = /-->|==>|\.\.\.>|-->|==>|\.\.\.>|--|==|\.\.\./.test(trimmedText);
+    
+    // Проверяем наличие узлов (квадратные скобки, круглые скобки и т.д.)
+    const hasNodes = /\[.*\]|\(.*\)|{.*}|".*"|'.*'/.test(trimmedText);
+    
+    return hasMermaidKeyword || hasConnections || hasNodes;
+}
+
+// Функция для получения исходного кода диаграммы
+function getMermaidSourceCode(element) {
+    // Проверяем атрибут data-diagram-source
+    const sourceCode = element.getAttribute('data-diagram-source');
+    if (sourceCode && isValidMermaidCode(sourceCode)) {
+        return sourceCode;
+    }
+    
+    // Проверяем содержимое элемента
+    const textContent = element.textContent || element.innerText;
+    if (isValidMermaidCode(textContent)) {
+        return textContent;
+    }
+    
+    // Проверяем скрытый элемент с исходным кодом
+    const sourceElement = element.querySelector('.mermaid-source');
+    if (sourceElement) {
+        const sourceText = sourceElement.textContent || sourceElement.innerText;
+        if (isValidMermaidCode(sourceText)) {
+            return sourceText;
         }
     }
     
-    check();
+    return null;
 }
 
 // Функция загрузки Mermaid
@@ -122,9 +166,21 @@ function processMermaidDiagrams() {
                 return;
             }
             
-            // Получаем текст диаграммы
-            const diagramText = element.textContent || element.innerText;
-            console.log('Processing diagram', index, ':', diagramText.substring(0, 100) + '...');
+            // Получаем исходный код диаграммы
+            const sourceCode = getMermaidSourceCode(element);
+            
+            if (!sourceCode) {
+                console.warn('No valid Mermaid code found in element', index);
+                element.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
+                element.setAttribute('data-mermaid-processed', 'true');
+                return;
+            }
+            
+            console.log('Processing diagram', index, ':', sourceCode.substring(0, 100) + '...');
+            
+            // Очищаем элемент и добавляем исходный код
+            element.innerHTML = '';
+            element.textContent = sourceCode;
             
             // Рендерим диаграмму
             mermaid.init(undefined, element);
@@ -139,6 +195,7 @@ function processMermaidDiagrams() {
             console.error('Error rendering mermaid diagram', index, ':', error);
             // Показываем ошибку в элементе
             element.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
+            element.setAttribute('data-mermaid-processed', 'true');
         }
     });
 }
@@ -232,13 +289,19 @@ function openMermaidFullscreen(element) {
     // Clear previous content
     modalDiagram.innerHTML = '';
     
-    // Get the original diagram text
-    const originalText = element.textContent || element.innerText;
+    // Get the original diagram source code
+    const sourceCode = getMermaidSourceCode(element);
+    
+    if (!sourceCode) {
+        modalDiagram.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
+        modal.classList.add('show');
+        return;
+    }
     
     // Create a new mermaid div for the modal
     const newMermaidDiv = document.createElement('div');
     newMermaidDiv.className = 'mermaid';
-    newMermaidDiv.textContent = originalText;
+    newMermaidDiv.textContent = sourceCode;
     
     // Add the diagram to modal
     modalDiagram.appendChild(newMermaidDiv);
@@ -387,9 +450,14 @@ function observeMermaidDiagrams() {
                     mermaidDivs.forEach(function(element) {
                         if (!element.hasAttribute('data-mermaid-processed')) {
                             try {
-                                mermaid.init(undefined, element);
-                                setupMermaidInteractivity(element);
-                                element.setAttribute('data-mermaid-processed', 'true');
+                                const sourceCode = getMermaidSourceCode(element);
+                                if (sourceCode) {
+                                    element.innerHTML = '';
+                                    element.textContent = sourceCode;
+                                    mermaid.init(undefined, element);
+                                    setupMermaidInteractivity(element);
+                                    element.setAttribute('data-mermaid-processed', 'true');
+                                }
                             } catch (error) {
                                 console.error('Error processing new mermaid diagram:', error);
                             }
