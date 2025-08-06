@@ -1,334 +1,131 @@
 // Enhanced Mermaid configuration with advanced controls like marmaid.html
 let mermaidLoaded = false;
 let mermaidInitialized = false;
+let currentScale = 1;
+let currentPanX = 0;
+let currentPanY = 0;
 
 // Функция для проверки загрузки Mermaid
 function checkMermaidLoaded() {
     return typeof mermaid !== 'undefined' && mermaid !== null;
 }
 
-// Функция для получения исходного кода диаграммы
-function getMermaidSourceCode(element) {
-    // Проверяем атрибут data-diagram-source
-    const sourceCode = element.getAttribute('data-diagram-source');
-    if (sourceCode) {
-        return sourceCode;
-    }
+// Функция для ожидания загрузки Mermaid
+function waitForMermaid(callback, maxAttempts = 50) {
+    let attempts = 0;
     
-    // Проверяем атрибут data-mermaid-source
-    const mermaidSource = element.getAttribute('data-mermaid-source');
-    if (mermaidSource) {
-        return mermaidSource;
-    }
-    
-    // Проверяем скрытый элемент с исходным кодом
-    const sourceElement = element.querySelector('.mermaid-source');
-    if (sourceElement) {
-        return sourceElement.textContent || sourceElement.innerText;
-    }
-    
-    // Проверяем содержимое элемента (если это еще не SVG)
-    const textContent = element.textContent || element.innerText;
-    if (textContent && !textContent.includes('<svg') && !textContent.includes('font-family:')) {
-        return textContent;
-    }
-    
-    // Если элемент уже содержит SVG, ищем исходный код в ближайших элементах
-    const parent = element.parentElement;
-    if (parent) {
-        // Ищем комментарии с исходным кодом
-        const comments = Array.from(parent.childNodes).filter(node => 
-            node.nodeType === Node.COMMENT_NODE
-        );
-        
-        for (const comment of comments) {
-            const commentText = comment.textContent.trim();
-            if (commentText.includes('graph') || 
-                commentText.includes('flowchart') || 
-                commentText.includes('sequenceDiagram') ||
-                commentText.includes('stateDiagram') ||
-                commentText.includes('classDiagram') ||
-                commentText.includes('mindmap')) {
-                return commentText;
-            }
-        }
-        
-        // Ищем в предыдущих элементах
-        const prevElement = element.previousElementSibling;
-        if (prevElement && prevElement.classList.contains('mermaid-source')) {
-            return prevElement.textContent || prevElement.innerText;
-        }
-    }
-    
-    return null;
-}
-
-// Функция для проверки, является ли содержимое валидным кодом Mermaid
-function isValidMermaidCode(text) {
-    if (!text || typeof text !== 'string') return false;
-    
-    const trimmedText = text.trim();
-    if (!trimmedText) return false;
-    
-    // Проверяем, не является ли это CSS кодом
-    if (trimmedText.includes('font-family:') || 
-        trimmedText.includes('fill:') || 
-        trimmedText.includes('stroke:') ||
-        trimmedText.includes('#mermaid-') ||
-        trimmedText.includes('<svg')) {
-        return false;
-    }
-    
-    // Проверяем наличие ключевых слов Mermaid
-    const mermaidKeywords = [
-        'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 
-        'stateDiagram', 'erDiagram', 'journey', 'gantt', 'pie', 
-        'gitgraph', 'quadrantChart', 'timeline', 'zenuml', 'sankey', 'mindmap'
-    ];
-    
-    const hasMermaidKeyword = mermaidKeywords.some(keyword => 
-        trimmedText.toLowerCase().includes(keyword.toLowerCase())
-    );
-    
-    // Проверяем наличие стрелок или связей
-    const hasConnections = /-->|==>|\.\.\.>|-->|==>|\.\.\.>|--|==|\.\.\./.test(trimmedText);
-    
-    // Проверяем наличие узлов (квадратные скобки, круглые скобки и т.д.)
-    const hasNodes = /\[.*\]|\(.*\)|{.*}|".*"|'.*'/.test(trimmedText);
-    
-    // Проверяем наличие участников в sequence diagram
-    const hasParticipants = /participant\s+\w+/.test(trimmedText);
-    
-    // Проверяем наличие состояний в state diagram
-    const hasStates = /\[\*\]|state\s+\w+/.test(trimmedText);
-    
-    return hasMermaidKeyword || hasConnections || hasNodes || hasParticipants || hasStates;
-}
-
-// Функция загрузки Mermaid
-function loadMermaid() {
-    return new Promise((resolve, reject) => {
+    function check() {
+        attempts++;
         if (checkMermaidLoaded()) {
-            resolve();
-            return;
+            callback();
+        } else if (attempts < maxAttempts) {
+            setTimeout(check, 100);
+        } else {
+            console.error('Mermaid failed to load');
         }
-        
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js';
-        script.onload = () => {
-            mermaidLoaded = true;
-            resolve();
-        };
-        script.onerror = () => {
-            reject(new Error('Failed to load Mermaid'));
-        };
-        document.head.appendChild(script);
-    });
+    }
+    
+    check();
 }
 
-// Инициализация Mermaid
+// Функция для инициализации Mermaid
 function initializeMermaid() {
     if (mermaidInitialized) return;
     
     try {
         mermaid.initialize({
-            startOnLoad: false, // Отключаем автозагрузку
+            startOnLoad: false,
             theme: 'default',
             flowchart: {
                 useMaxWidth: true,
                 htmlLabels: true,
                 curve: 'basis'
             },
-            sequence: {
-                useMaxWidth: true,
-                diagramMarginX: 50,
-                diagramMarginY: 10
-            },
-            gantt: {
-                useMaxWidth: true
-            },
-            journey: {
-                useMaxWidth: true
-            },
-            gitGraph: {
-                useMaxWidth: true
-            },
-            pie: {
-                useMaxWidth: true
-            },
-            quadrantChart: {
-                useMaxWidth: true
-            },
-            timeline: {
-                useMaxWidth: true
-            },
-            stateDiagram: {
-                useMaxWidth: true
-            },
-            classDiagram: {
-                useMaxWidth: true
-            },
-            erDiagram: {
-                useMaxWidth: true
-            },
             themeVariables: {
-                darkMode: document.documentElement.getAttribute('data-md-color-scheme') === 'slate'
+                primaryColor: '#3498db',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#2980b9',
+                lineColor: '#333',
+                secondaryColor: '#f39c12',
+                tertiaryColor: '#9b59b6'
             }
         });
         
         mermaidInitialized = true;
         console.log('Mermaid initialized successfully');
         
-        // Process all mermaid diagrams
+        // Обработка диаграмм после инициализации
         processMermaidDiagrams();
-        
-        // Create modal overlay
-        createMermaidModal();
         
     } catch (error) {
         console.error('Error initializing Mermaid:', error);
     }
 }
 
-// Обработка всех диаграмм Mermaid
+// Функция для обработки диаграмм
 function processMermaidDiagrams() {
-    var mermaidDivs = document.querySelectorAll('.mermaid');
-    console.log('Found', mermaidDivs.length, 'mermaid diagrams');
+    const diagrams = document.querySelectorAll('.mermaid');
+    console.log(`Found ${diagrams.length} mermaid diagrams`);
     
-    mermaidDivs.forEach(function(element, index) {
-        try {
-            // Проверяем, не был ли уже обработан элемент
-            if (element.hasAttribute('data-mermaid-processed')) {
-                return;
-            }
-            
-            // Проверяем, содержит ли элемент уже SVG (уже обработан mermaid2)
-            const hasSvg = element.querySelector('svg');
-            
-            if (hasSvg) {
-                // Элемент уже содержит SVG, сохраняем исходный код и добавляем интерактивность
-                saveSourceCodeForElement(element);
-                setupMermaidInteractivity(element);
-                element.setAttribute('data-mermaid-processed', 'true');
-                console.log('Diagram', index, 'already rendered, adding interactivity');
-                return;
-            }
-            
-            // Получаем исходный код диаграммы
-            const sourceCode = getMermaidSourceCode(element);
-            
-            if (!sourceCode) {
-                console.warn('No valid Mermaid code found in element', index);
-                element.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
-                element.setAttribute('data-mermaid-processed', 'true');
-                return;
-            }
-            
-            console.log('Processing diagram', index, ':', sourceCode.substring(0, 100) + '...');
-            
-            // Сохраняем исходный код
-            element.setAttribute('data-mermaid-source', sourceCode);
-            
-            // Очищаем элемент и добавляем исходный код
-            element.innerHTML = '';
-            element.textContent = sourceCode;
-            
-            // Рендерим диаграмму
-            mermaid.init(undefined, element);
-            
-            // Настраиваем интерактивность
-            setupMermaidInteractivity(element);
-            
-            // Отмечаем как обработанный
-            element.setAttribute('data-mermaid-processed', 'true');
-            
-        } catch (error) {
-            console.error('Error rendering mermaid diagram', index, ':', error);
-            // Показываем ошибку в элементе
-            element.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
-            element.setAttribute('data-mermaid-processed', 'true');
-        }
+    diagrams.forEach((diagram, index) => {
+        // Добавляем кнопку для открытия в полноэкранном режиме
+        addFullscreenButton(diagram);
+        
+        // Добавляем обработчик клика
+        diagram.addEventListener('click', function(e) {
+            if (e.target.closest('.mermaid-fullscreen-btn')) return;
+            openMermaidFullscreen(this);
+        });
     });
 }
 
-// Функция для сохранения исходного кода для уже обработанных элементов
-function saveSourceCodeForElement(element) {
-    // Ищем исходный код в ближайших элементах
-    const parent = element.parentElement;
-    if (parent) {
-        // Ищем в предыдущих элементах
-        let prevElement = element.previousElementSibling;
-        while (prevElement) {
-            if (prevElement.tagName === 'PRE' && prevElement.querySelector('code.language-mermaid')) {
-                const sourceCode = prevElement.textContent.trim();
-                if (isValidMermaidCode(sourceCode)) {
-                    element.setAttribute('data-mermaid-source', sourceCode);
-                    return;
-                }
-            }
-            prevElement = prevElement.previousElementSibling;
-        }
-        
-        // Ищем в следующих элементах
-        let nextElement = element.nextElementSibling;
-        while (nextElement) {
-            if (nextElement.tagName === 'PRE' && nextElement.querySelector('code.language-mermaid')) {
-                const sourceCode = nextElement.textContent.trim();
-                if (isValidMermaidCode(sourceCode)) {
-                    element.setAttribute('data-mermaid-source', sourceCode);
-                    return;
-                }
-            }
-            nextElement = nextElement.nextElementSibling;
-        }
-        
-        // Ищем в комментариях
-        const comments = Array.from(parent.childNodes).filter(node => 
-            node.nodeType === Node.COMMENT_NODE
-        );
-        
-        for (const comment of comments) {
-            const commentText = comment.textContent.trim();
-            if (isValidMermaidCode(commentText)) {
-                element.setAttribute('data-mermaid-source', commentText);
-                return;
-            }
-        }
-    }
-}
-
-function setupMermaidInteractivity(element) {
-    // Add zoomable class
-    element.classList.add('zoomable');
+// Функция для добавления кнопки полноэкранного режима
+function addFullscreenButton(diagram) {
+    if (diagram.querySelector('.mermaid-fullscreen-btn')) return;
     
-    // Add zoom controls
-    const zoomControls = document.createElement('div');
-    zoomControls.className = 'mermaid-zoom-controls-embedded';
-    zoomControls.innerHTML = `
-        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 1.2)" title="Увеличить">+</button>
-        <button class="mermaid-zoom-btn-small" onclick="zoomMermaid(this, 0.8)" title="Уменьшить">-</button>
-        <button class="mermaid-zoom-btn-small" onclick="openMermaidFullscreen(this)" title="Полноэкранный режим">⛶</button>
+    const button = document.createElement('button');
+    button.className = 'mermaid-fullscreen-btn';
+    button.innerHTML = '��';
+    button.title = 'Открыть в полноэкранном режиме';
+    button.style.cssText = `
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(52, 152, 219, 0.9);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+        cursor: pointer;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s ease;
     `;
-    element.appendChild(zoomControls);
     
-    // Add click handler for fullscreen
-    element.addEventListener('click', function(e) {
-        if (!e.target.closest('.mermaid-zoom-controls-embedded')) {
-            openMermaidFullscreen(element);
-        }
+    diagram.style.position = 'relative';
+    diagram.appendChild(button);
+    
+    diagram.addEventListener('mouseenter', () => {
+        button.style.opacity = '1';
+    });
+    
+    diagram.addEventListener('mouseleave', () => {
+        button.style.opacity = '0';
+    });
+    
+    button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openMermaidFullscreen(diagram);
     });
 }
 
-function createMermaidModal() {
-    // Remove existing modal if any
-    const existingModal = document.getElementById('mermaid-modal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
+// Функция для открытия диаграммы в полноэкранном режиме
+function openMermaidFullscreen(diagram) {
+    // Создаем модальное окно
     const modal = document.createElement('div');
-    modal.className = 'mermaid-modal';
-    modal.id = 'mermaid-modal';
+    modal.className = 'mermaid-modal-overlay active';
     modal.innerHTML = `
         <div class="mermaid-modal-content">
             <button class="mermaid-modal-close" onclick="closeMermaidModal()" title="Закрыть">×</button>
@@ -347,310 +144,170 @@ function createMermaidModal() {
             </div>
         </div>
     `;
+    
     document.body.appendChild(modal);
     
-    // Close modal on background click
+    // Копируем SVG в модальное окно
+    const modalDiagram = document.getElementById('mermaid-modal-diagram');
+    const originalSvg = diagram.querySelector('svg');
+    
+    if (originalSvg) {
+        const clonedSvg = originalSvg.cloneNode(true);
+        modalDiagram.appendChild(clonedSvg);
+        
+        // Применяем правильные стили к SVG
+        applySvgStyles(clonedSvg);
+    }
+    
+    // Сброс масштаба и панорамирования
+    resetView();
+    
+    // Обработчик закрытия по клику вне диаграммы
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeMermaidModal();
         }
     });
     
-    // Close modal on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('show')) {
-            closeMermaidModal();
-        }
-    });
+    // Обработчик клавиш
+    document.addEventListener('keydown', handleKeyDown);
 }
 
-// Global variables for modal controls
-let currentScale = 1;
-let currentX = 0;
-let currentY = 0;
+// Функция для применения стилей к SVG
+function applySvgStyles(svg) {
+    svg.style.maxWidth = '100%';
+    svg.style.maxHeight = '100%';
+    svg.style.width = 'auto';
+    svg.style.height = 'auto';
+    svg.style.transform = 'scale(1)';
+    svg.style.transformOrigin = 'center center';
+    svg.style.objectFit = 'contain';
+}
 
+// Функция для закрытия модального окна
 function closeMermaidModal() {
-    const modal = document.getElementById('mermaid-modal');
+    const modal = document.querySelector('.mermaid-modal-overlay');
     if (modal) {
-        modal.classList.remove('show');
-        
-        // Clear modal content
-        const modalDiagram = document.getElementById('mermaid-modal-diagram');
-        if (modalDiagram) {
-            modalDiagram.innerHTML = '';
-        }
+        modal.remove();
+        document.removeEventListener('keydown', handleKeyDown);
     }
 }
 
-// Advanced control functions (like in marmaid.html)
+// Функции управления масштабом и панорамированием
 function zoomIn() {
-    currentScale *= 1.2;
-    updateTransform();
+    currentScale = Math.min(currentScale * 1.2, 5);
+    updateSvgTransform();
 }
 
 function zoomOut() {
-    currentScale /= 1.2;
-    updateTransform();
+    currentScale = Math.max(currentScale / 1.2, 0.1);
+    updateSvgTransform();
 }
 
 function panUp() {
-    currentY += 50;
-    updateTransform();
+    currentPanY += 50;
+    updateSvgTransform();
 }
 
 function panDown() {
-    currentY -= 50;
-    updateTransform();
+    currentPanY -= 50;
+    updateSvgTransform();
 }
 
 function panLeft() {
-    currentX += 50;
-    updateTransform();
+    currentPanX += 50;
+    updateSvgTransform();
 }
 
 function panRight() {
-    currentX -= 50;
-    updateTransform();
+    currentPanX -= 50;
+    updateSvgTransform();
 }
 
 function resetView() {
     currentScale = 1;
-    currentX = 0;
-    currentY = 0;
-    updateTransform();
+    currentPanX = 0;
+    currentPanY = 0;
+    updateSvgTransform();
 }
 
-function updateTransform() {
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    if (modalDiagram) {
-        const svg = modalDiagram.querySelector('svg');
-        if (svg) {
-            svg.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-        }
-    }
-}
-
-function zoomMermaid(button, factor) {
-    const mermaidDiv = button.closest('.mermaid');
-    const svg = mermaidDiv.querySelector('svg');
+function updateSvgTransform() {
+    const svg = document.querySelector('#mermaid-modal-diagram svg');
     if (svg) {
-        const currentScale = svg.style.transform ? 
-            parseFloat(svg.style.transform.match(/scale\(([^)]+)\)/)?.[1] || 1) : 1;
-        const newScale = Math.max(0.5, Math.min(3, currentScale * factor));
-        svg.style.transform = `scale(${newScale})`;
-        svg.style.transformOrigin = 'center center';
+        svg.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentScale})`;
     }
 }
 
+// Функция для переключения темы
 function toggleMermaidTheme() {
-    const modal = document.getElementById('mermaid-modal');
-    const themeButton = modal.querySelector('.mermaid-theme-toggle');
+    const button = document.querySelector('.mermaid-theme-toggle');
+    const svg = document.querySelector('#mermaid-modal-diagram svg');
     
-    // Toggle theme
-    const isDark = modal.classList.contains('dark-theme');
-    if (isDark) {
-        modal.classList.remove('dark-theme');
-        themeButton.textContent = '🌙';
-        themeButton.title = 'Переключить на темную тему';
-    } else {
-        modal.classList.add('dark-theme');
-        themeButton.textContent = '☀️';
-        themeButton.title = 'Переключить на светлую тему';
-    }
-}
-
-function openMermaidFullscreen(element) {
-    if (!checkMermaidLoaded()) {
-        console.error('Mermaid not loaded');
-        return;
-    }
-    
-    const modal = document.getElementById('mermaid-modal');
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    
-    if (!modal || !modalDiagram) {
-        console.error('Modal elements not found');
-        return;
-    }
-    
-    // Clear previous content
-    modalDiagram.innerHTML = '';
-    
-    // Проверяем, содержит ли элемент уже SVG
-    const svg = element.querySelector('svg');
-    if (svg) {
-        // Клонируем SVG для модального окна
-        const clonedSvg = svg.cloneNode(true);
-        
-        // Создаем новый контейнер для SVG
-        const svgContainer = document.createElement('div');
-        svgContainer.className = 'mermaid';
-        svgContainer.appendChild(clonedSvg);
-        
-        // Сбрасываем все трансформации и устанавливаем правильные размеры
-        clonedSvg.style.transform = 'none';
-        clonedSvg.style.maxWidth = '100%';
-        clonedSvg.style.maxHeight = '100%';
-        clonedSvg.style.width = 'auto';
-        clonedSvg.style.height = 'auto';
-        
-        // Автоматическое масштабирование для очень широких диаграмм
-        const viewBox = clonedSvg.getAttribute('viewBox');
-        if (viewBox) {
-            const parts = viewBox.split(' ');
-            const width = parseFloat(parts[2]);
-            const height = parseFloat(parts[3]);
-            
-            if (width > 2000) {
-                const scale = Math.min(0.3, 1200 / width);
-                clonedSvg.style.transform = `scale(${scale})`;
-                clonedSvg.style.transformOrigin = 'center center';
-            } else if (width > 1500) {
-                const scale = Math.min(0.5, 1000 / width);
-                clonedSvg.style.transform = `scale(${scale})`;
-                clonedSvg.style.transformOrigin = 'center center';
-            }
+    if (button.textContent === '��') {
+        button.textContent = '☀️';
+        if (svg) {
+            svg.style.filter = 'invert(1) hue-rotate(180deg)';
         }
-        
-        modalDiagram.appendChild(svgContainer);
-        modal.classList.add('show');
-        resetView();
-        return;
-    }
-    
-    // Получаем исходный код диаграммы
-    const sourceCode = getMermaidSourceCode(element);
-    
-    if (!sourceCode) {
-        modalDiagram.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
-        modal.classList.add('show');
-        return;
-    }
-    
-    // Create a new mermaid div for the modal
-    const newMermaidDiv = document.createElement('div');
-    newMermaidDiv.className = 'mermaid';
-    newMermaidDiv.textContent = sourceCode;
-    
-    // Add the diagram to modal
-    modalDiagram.appendChild(newMermaidDiv);
-    
-    // Show modal
-    modal.classList.add('show');
-    
-    // Re-render mermaid in modal with error handling
-    try {
-        mermaid.init(undefined, newMermaidDiv).then(() => {
-            resetView(); // Reset view when opening
-            
-            // Сбрасываем трансформации после рендеринга
-            const newSvg = newMermaidDiv.querySelector('svg');
-            if (newSvg) {
-                newSvg.style.transform = 'none';
-                newSvg.style.maxWidth = '100%';
-                newSvg.style.maxHeight = '100%';
-                newSvg.style.width = 'auto';
-                newSvg.style.height = 'auto';
-                
-                // Автоматическое масштабирование для очень широких диаграмм
-                const viewBox = newSvg.getAttribute('viewBox');
-                if (viewBox) {
-                    const parts = viewBox.split(' ');
-                    const width = parseFloat(parts[2]);
-                    const height = parseFloat(parts[3]);
-                    
-                    if (width > 2000) {
-                        const scale = Math.min(0.3, 1200 / width);
-                        newSvg.style.transform = `scale(${scale})`;
-                        newSvg.style.transformOrigin = 'center center';
-                    } else if (width > 1500) {
-                        const scale = Math.min(0.5, 1000 / width);
-                        newSvg.style.transform = `scale(${scale})`;
-                        newSvg.style.transformOrigin = 'center center';
-                    }
-                }
-            }
-        }).catch(error => {
-            console.error('Error rendering mermaid diagram in modal:', error);
-            modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
-        });
-    } catch (error) {
-        console.error('Error initializing mermaid in modal:', error);
-        modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка: ${error.message}</div>`;
+    } else {
+        button.textContent = '��';
+        if (svg) {
+            svg.style.filter = 'none';
+        }
     }
 }
 
+// Обработчик клавиш
+function handleKeyDown(e) {
+    switch(e.key) {
+        case 'Escape':
+            closeMermaidModal();
+            break;
+        case '+':
+        case '=':
+            zoomIn();
+            break;
+        case '-':
+            zoomOut();
+            break;
+        case 'ArrowUp':
+            panUp();
+            break;
+        case 'ArrowDown':
+            panDown();
+            break;
+        case 'ArrowLeft':
+            panLeft();
+            break;
+        case 'ArrowRight':
+            panRight();
+            break;
+        case '0':
+            resetView();
+            break;
+    }
+}
 
-// Основная инициализация
+// Инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, checking for Mermaid...');
-    
-    // Проверяем, загружен ли уже Mermaid
-    if (checkMermaidLoaded()) {
-        console.log('Mermaid already loaded');
-        initializeMermaid();
-    } else {
+    waitForMermaid(function() {
         console.log('Loading Mermaid...');
-        loadMermaid().then(() => {
+        mermaid.load().then(() => {
             console.log('Mermaid loaded successfully');
             initializeMermaid();
         }).catch(error => {
-            console.error('Failed to load Mermaid:', error);
-        });
-    }
-});
-
-// Дополнительная проверка для случаев, когда Mermaid загружается после DOM
-window.addEventListener('load', function() {
-    if (!mermaidInitialized && checkMermaidLoaded()) {
-        console.log('Mermaid loaded after window load');
-        initializeMermaid();
-    }
-});
-
-
-
-// Обработка динамически добавленных диаграмм
-function observeMermaidDiagrams() {
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1) { // Element node
-                    const mermaidDivs = node.querySelectorAll ? node.querySelectorAll('.mermaid') : [];
-                    mermaidDivs.forEach(function(element) {
-                        if (!element.hasAttribute('data-mermaid-processed')) {
-                            try {
-                                const hasSvg = element.querySelector('svg');
-                                if (hasSvg) {
-                                    saveSourceCodeForElement(element);
-                                    setupMermaidInteractivity(element);
-                                    element.setAttribute('data-mermaid-processed', 'true');
-                                } else {
-                                    const sourceCode = getMermaidSourceCode(element);
-                                    if (sourceCode) {
-                                        element.setAttribute('data-mermaid-source', sourceCode);
-                                        element.innerHTML = '';
-                                        element.textContent = sourceCode;
-                                        mermaid.init(undefined, element);
-                                        setupMermaidInteractivity(element);
-                                        element.setAttribute('data-mermaid-processed', 'true');
-                                    }
-                                }
-                            } catch (error) {
-                                console.error('Error processing new mermaid diagram:', error);
-                            }
-                        }
-                    });
-                }
-            });
+            console.error('Error loading Mermaid:', error);
         });
     });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-}
+});
 
-// Запускаем наблюдение после инициализации
-setTimeout(observeMermaidDiagrams, 1000);
+// Глобальные функции для кнопок
+window.closeMermaidModal = closeMermaidModal;
+window.toggleMermaidTheme = toggleMermaidTheme;
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
+window.panUp = panUp;
+window.panDown = panDown;
+window.panLeft = panLeft;
+window.panRight = panRight;
+window.resetView = resetView;
