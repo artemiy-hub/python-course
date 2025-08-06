@@ -7,11 +7,66 @@ function checkMermaidLoaded() {
     return typeof mermaid !== 'undefined' && mermaid !== null;
 }
 
-// Функция для проверки, является ли содержимое кодом диаграммы
+// Функция для получения исходного кода диаграммы
+function getMermaidSourceCode(element) {
+    // Проверяем атрибут data-diagram-source
+    const sourceCode = element.getAttribute('data-diagram-source');
+    if (sourceCode) {
+        return sourceCode;
+    }
+    
+    // Проверяем атрибут data-mermaid-source
+    const mermaidSource = element.getAttribute('data-mermaid-source');
+    if (mermaidSource) {
+        return mermaidSource;
+    }
+    
+    // Проверяем скрытый элемент с исходным кодом
+    const sourceElement = element.querySelector('.mermaid-source');
+    if (sourceElement) {
+        return sourceElement.textContent || sourceElement.innerText;
+    }
+    
+    // Проверяем содержимое элемента (если это еще не SVG)
+    const textContent = element.textContent || element.innerText;
+    if (textContent && !textContent.includes('<svg') && !textContent.includes('font-family:')) {
+        return textContent;
+    }
+    
+    // Если элемент уже содержит SVG, ищем исходный код в ближайших элементах
+    const parent = element.parentElement;
+    if (parent) {
+        // Ищем комментарии с исходным кодом
+        const comments = Array.from(parent.childNodes).filter(node => 
+            node.nodeType === Node.COMMENT_NODE
+        );
+        
+        for (const comment of comments) {
+            const commentText = comment.textContent.trim();
+            if (commentText.includes('graph') || 
+                commentText.includes('flowchart') || 
+                commentText.includes('sequenceDiagram') ||
+                commentText.includes('stateDiagram') ||
+                commentText.includes('classDiagram') ||
+                commentText.includes('mindmap')) {
+                return commentText;
+            }
+        }
+        
+        // Ищем в предыдущих элементах
+        const prevElement = element.previousElementSibling;
+        if (prevElement && prevElement.classList.contains('mermaid-source')) {
+            return prevElement.textContent || prevElement.innerText;
+        }
+    }
+    
+    return null;
+}
+
+// Функция для проверки, является ли содержимое валидным кодом Mermaid
 function isValidMermaidCode(text) {
     if (!text || typeof text !== 'string') return false;
     
-    // Убираем лишние пробелы
     const trimmedText = text.trim();
     if (!trimmedText) return false;
     
@@ -19,7 +74,8 @@ function isValidMermaidCode(text) {
     if (trimmedText.includes('font-family:') || 
         trimmedText.includes('fill:') || 
         trimmedText.includes('stroke:') ||
-        trimmedText.includes('#mermaid-')) {
+        trimmedText.includes('#mermaid-') ||
+        trimmedText.includes('<svg')) {
         return false;
     }
     
@@ -27,7 +83,7 @@ function isValidMermaidCode(text) {
     const mermaidKeywords = [
         'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 
         'stateDiagram', 'erDiagram', 'journey', 'gantt', 'pie', 
-        'gitgraph', 'quadrantChart', 'timeline', 'zenuml', 'sankey'
+        'gitgraph', 'quadrantChart', 'timeline', 'zenuml', 'sankey', 'mindmap'
     ];
     
     const hasMermaidKeyword = mermaidKeywords.some(keyword => 
@@ -40,33 +96,13 @@ function isValidMermaidCode(text) {
     // Проверяем наличие узлов (квадратные скобки, круглые скобки и т.д.)
     const hasNodes = /\[.*\]|\(.*\)|{.*}|".*"|'.*'/.test(trimmedText);
     
-    return hasMermaidKeyword || hasConnections || hasNodes;
-}
-
-// Функция для получения исходного кода диаграммы
-function getMermaidSourceCode(element) {
-    // Проверяем атрибут data-diagram-source
-    const sourceCode = element.getAttribute('data-diagram-source');
-    if (sourceCode && isValidMermaidCode(sourceCode)) {
-        return sourceCode;
-    }
+    // Проверяем наличие участников в sequence diagram
+    const hasParticipants = /participant\s+\w+/.test(trimmedText);
     
-    // Проверяем содержимое элемента
-    const textContent = element.textContent || element.innerText;
-    if (isValidMermaidCode(textContent)) {
-        return textContent;
-    }
+    // Проверяем наличие состояний в state diagram
+    const hasStates = /\[\*\]|state\s+\w+/.test(trimmedText);
     
-    // Проверяем скрытый элемент с исходным кодом
-    const sourceElement = element.querySelector('.mermaid-source');
-    if (sourceElement) {
-        const sourceText = sourceElement.textContent || sourceElement.innerText;
-        if (isValidMermaidCode(sourceText)) {
-            return sourceText;
-        }
-    }
-    
-    return null;
+    return hasMermaidKeyword || hasConnections || hasNodes || hasParticipants || hasStates;
 }
 
 // Функция загрузки Mermaid
@@ -163,6 +199,17 @@ function processMermaidDiagrams() {
         try {
             // Проверяем, не был ли уже обработан элемент
             if (element.hasAttribute('data-mermaid-processed')) {
+                return;
+            }
+            
+            // Проверяем, содержит ли элемент уже SVG (уже обработан mermaid2)
+            const hasSvg = element.querySelector('svg');
+            
+            if (hasSvg) {
+                // Элемент уже содержит SVG, просто добавляем интерактивность
+                setupMermaidInteractivity(element);
+                element.setAttribute('data-mermaid-processed', 'true');
+                console.log('Diagram', index, 'already rendered, adding interactivity');
                 return;
             }
             
@@ -289,7 +336,18 @@ function openMermaidFullscreen(element) {
     // Clear previous content
     modalDiagram.innerHTML = '';
     
-    // Get the original diagram source code
+    // Проверяем, содержит ли элемент уже SVG
+    const svg = element.querySelector('svg');
+    if (svg) {
+        // Клонируем SVG для модального окна
+        const clonedSvg = svg.cloneNode(true);
+        modalDiagram.appendChild(clonedSvg);
+        modal.classList.add('show');
+        resetView();
+        return;
+    }
+    
+    // Получаем исходный код диаграммы
     const sourceCode = getMermaidSourceCode(element);
     
     if (!sourceCode) {
@@ -450,13 +508,19 @@ function observeMermaidDiagrams() {
                     mermaidDivs.forEach(function(element) {
                         if (!element.hasAttribute('data-mermaid-processed')) {
                             try {
-                                const sourceCode = getMermaidSourceCode(element);
-                                if (sourceCode) {
-                                    element.innerHTML = '';
-                                    element.textContent = sourceCode;
-                                    mermaid.init(undefined, element);
+                                const hasSvg = element.querySelector('svg');
+                                if (hasSvg) {
                                     setupMermaidInteractivity(element);
                                     element.setAttribute('data-mermaid-processed', 'true');
+                                } else {
+                                    const sourceCode = getMermaidSourceCode(element);
+                                    if (sourceCode) {
+                                        element.innerHTML = '';
+                                        element.textContent = sourceCode;
+                                        mermaid.init(undefined, element);
+                                        setupMermaidInteractivity(element);
+                                        element.setAttribute('data-mermaid-processed', 'true');
+                                    }
                                 }
                             } catch (error) {
                                 console.error('Error processing new mermaid diagram:', error);
