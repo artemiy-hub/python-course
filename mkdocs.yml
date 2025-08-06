@@ -39,6 +39,7 @@ plugins:
           useMaxWidth: true
         gantt:
           useMaxWidth: true
+      version: 10.6.1
 
 markdown_extensions:
   - admonition

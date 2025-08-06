@@ -4,11 +4,64 @@ let currentScale = 1;
 let currentPanX = 0;
 let currentPanY = 0;
 
+// Функция для загрузки библиотеки Mermaid, если она не загружена
+function loadMermaidLibrary() {
+    if (typeof mermaid !== 'undefined') {
+        return Promise.resolve();
+    }
+    
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js';
+        script.onload = () => {
+            console.log('Mermaid library loaded from CDN');
+            resolve();
+        };
+        script.onerror = () => {
+            console.error('Failed to load Mermaid library');
+            reject();
+        };
+        document.head.appendChild(script);
+    });
+}
+
+// Функция для ожидания загрузки библиотеки Mermaid
+function waitForMermaid() {
+    if (typeof mermaid !== 'undefined') {
+        console.log('Mermaid library found, initializing controls...');
+        initializeMermaidControls();
+    } else {
+        console.log('Waiting for Mermaid library to load...');
+        loadMermaidLibrary().then(() => {
+            initializeMermaidControls();
+        }).catch(() => {
+            setTimeout(waitForMermaid, 100);
+        });
+    }
+}
+
 // Функция для инициализации после загрузки DOM
 function initializeMermaidControls() {
     if (mermaidInitialized) return;
     
     console.log('Initializing Mermaid controls...');
+    
+    // Инициализируем Mermaid, если это необходимо
+    if (typeof mermaid !== 'undefined' && typeof mermaid.initialize === 'function') {
+        mermaid.initialize({
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            },
+            sequence: {
+                useMaxWidth: true
+            },
+            gantt: {
+                useMaxWidth: true
+            }
+        });
+    }
     
     // Обработка диаграмм
     processMermaidDiagrams();
@@ -248,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Ждем немного, чтобы MkDocs обработал диаграммы
     setTimeout(() => {
-        initializeMermaidControls();
+        waitForMermaid();
     }, 1000);
 });
 
