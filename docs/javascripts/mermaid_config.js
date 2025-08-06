@@ -369,57 +369,6 @@ let currentScale = 1;
 let currentX = 0;
 let currentY = 0;
 
-function openMermaidFullscreen(element) {
-    if (!checkMermaidLoaded()) {
-        console.error('Mermaid not loaded');
-        return;
-    }
-    
-    const modal = document.getElementById('mermaid-modal');
-    const modalDiagram = document.getElementById('mermaid-modal-diagram');
-    
-    if (!modal || !modalDiagram) {
-        console.error('Modal elements not found');
-        return;
-    }
-    
-    // Clear previous content
-    modalDiagram.innerHTML = '';
-    
-    // Получаем исходный код диаграммы
-    const sourceCode = element.getAttribute('data-mermaid-source');
-    
-    if (!sourceCode) {
-        modalDiagram.innerHTML = `<div style="color: orange; padding: 20px; text-align: center;">⚠️ Не найден код диаграммы Mermaid</div>`;
-        modal.classList.add('show');
-        return;
-    }
-    
-    // Create a new mermaid div for the modal
-    const newMermaidDiv = document.createElement('div');
-    newMermaidDiv.className = 'mermaid';
-    newMermaidDiv.textContent = sourceCode;
-    
-    // Add the diagram to modal
-    modalDiagram.appendChild(newMermaidDiv);
-    
-    // Show modal
-    modal.classList.add('show');
-    
-    // Re-render mermaid in modal with error handling
-    try {
-        mermaid.init(undefined, newMermaidDiv).then(() => {
-            resetView(); // Reset view when opening
-        }).catch(error => {
-            console.error('Error rendering mermaid diagram in modal:', error);
-            modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка рендеринга: ${error.message}</div>`;
-        });
-    } catch (error) {
-        console.error('Error initializing mermaid in modal:', error);
-        modalDiagram.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">Ошибка: ${error.message}</div>`;
-    }
-}
-
 function closeMermaidModal() {
     const modal = document.getElementById('mermaid-modal');
     if (modal) {
