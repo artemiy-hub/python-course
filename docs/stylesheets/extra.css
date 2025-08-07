@@ -42,6 +42,11 @@
     overflow: hidden;
 }
 
+[data-md-color-scheme="slate"] .mermaid {
+    background-color: var(--md-code-bg-color);
+    border-color: var(--md-default-fg-color--lighter);
+}
+
 .mermaid:hover {
     transform: scale(1.02);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -79,6 +84,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 500px;
+    min-width: 500px;
 }
 
 /* Mermaid modal close button */
@@ -138,6 +145,8 @@
     padding: 20px;
     overflow: hidden;
     position: relative;
+    min-height: 400px;
+    min-width: 400px;
 }
 
 /* SVG styling for modal */
@@ -156,14 +165,26 @@
     justify-content: center;
 }
 
-.mermaid-modal-diagram-container .mermaid svg {
+.mermaid-modal-diagram-container .mermaid svg,
+.mermaid-modal-diagram-container svg {
     max-width: 100% !important;
     max-height: 100% !important;
     width: auto !important;
     height: auto !important;
-    transform: scale(1) !important;
     transform-origin: center center !important;
     object-fit: contain;
+}
+
+/* Direct SVG styling for modal */
+#mermaid-modal-diagram svg {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    transform-origin: center center !important;
+    object-fit: contain;
+    display: block !important;
+    margin: auto !important;
 }
 
 /* Controls container */
@@ -173,31 +194,49 @@
     right: 20px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 8px;
     z-index: 10001;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
 }
 
 .mermaid-controls button {
     background: var(--md-primary-fg-color);
     color: var(--md-primary-bg-color);
     border: none;
-    border-radius: 4px;
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.mermaid-controls button:hover {
+.mermaid-controls button.spacer {
+    background: transparent;
+    border: none;
+    cursor: default;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+.mermaid-controls button:hover:not(.spacer) {
     background-color: var(--md-accent-fg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.mermaid-controls button:active {
-    transform: scale(0.95);
+.mermaid-controls button:active:not(.spacer) {
+    transform: translateY(0px) scale(0.95);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive design */
@@ -210,12 +249,14 @@
     .mermaid-controls {
         bottom: 10px;
         right: 10px;
+        gap: 6px;
+        padding: 12px;
     }
     
     .mermaid-controls button {
-        width: 30px;
-        height: 30px;
-        font-size: 12px;
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
     }
 }
 
@@ -223,6 +264,19 @@
 [data-md-color-scheme="slate"] .mermaid-modal-content {
     background-color: var(--md-default-bg-color);
     border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+[data-md-color-scheme="slate"] .mermaid-controls {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-md-color-scheme="slate"] .mermaid-controls button:not(.spacer) {
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+}
+
+[data-md-color-scheme="slate"] .mermaid-controls button:hover:not(.spacer) {
+    background-color: var(--md-accent-fg-color);
 }
 
 /* Animation for modal */

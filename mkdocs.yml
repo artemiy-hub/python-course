@@ -6,40 +6,29 @@ theme:
   name: material
   language: ru
   palette:
-    - media: "(prefers-color-scheme)"
-      scheme: default
+    - scheme: default
       primary: indigo
       accent: indigo
       toggle:
-        icon: material/toggle-switch
-        name: Переключить цветовую схему
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+        icon: material/brightness-7
+        name: Переключить на темную тему
+    - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
-        icon: material/toggle-switch-off-outline
-        name: Переключить цветовую схему
+        icon: material/brightness-4
+        name: Переключить на светлую тему
 
 extra_css:
   - stylesheets/extra.css
 
 extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js
   - javascripts/mermaid_config.js
 
 plugins:
   - search
-  - mermaid2:
-      arguments:
-        theme: default
-        flowchart:
-          useMaxWidth: true
-          htmlLabels: true
-        sequence:
-          useMaxWidth: true
-        gantt:
-          useMaxWidth: true
-      version: 10.6.1
+  - mermaid2
 
 markdown_extensions:
   - admonition
@@ -73,6 +62,7 @@ extra:
 
 nav:
   - Главная: index.md
+  - Тест: test_mermaid.md
   - Основы:
     - 01. Введение: 
       - Обзор: 01_Введение/README.md
